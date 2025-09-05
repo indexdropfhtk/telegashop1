@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>School Market - Telegram Mini App</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2563eb',
+                        secondary: '#1e40af',
+                        accent: '#3b82f6',
+                        background: '#f8fafc',
+                        danger: '#dc2626',
+                        success: '#16a34a',
+                        warning: '#d97706'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .card-hover {
+            transition: all 0.2s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+        .status-badge {
+            @apply px-2 py-1 rounded-full text-xs font-medium;
+        }
+        .status-pending { @apply bg-yellow-100 text-yellow-800; }
+        .status-approved { @apply bg-green-100 text-green-800; }
+        .status-rejected { @apply bg-red-100 text-red-800; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body class="bg-background min-h-screen">
+    <!-- Main App Container -->
+    <div id="app" class="max-w-md mx-auto bg-white min-h-screen flex flex-col">
+        <!-- Header -->
+        <div class="bg-primary text-white p-4 shadow-md">
+            <h1 class="text-xl font-bold text-center">School Market</h1>
+            <p class="text-sm opacity-90 text-center mt-1">Добро пожаловать!</p>
+        </div>
+
+        <!-- Main Content -->
+        <div id="mainContent" class="flex-1 p-4 overflow-y-auto">
+            <!-- School Selection Screen -->
+            <div id="schoolScreen" class="fade-in">
+                <h2 class="text-lg font-semibold mb-4 text-center">Выберите вашу школу</h2>
+                <div class="space-y-3">
+                    <button onclick="selectSchool('Школа №1')" class="w-full bg-white border-2 border-primary text-primary font-medium py-3 px-4 rounded-lg shadow-sm hover:bg-primary hover:text-white transition-colors duration-200 card-hover">
+                        🏫 Школа №1
+                    </button>
+                    <button onclick="selectSchool('Школа №2')" class="w-full bg-white border-2 border-primary text-primary font-medium py-3 px-4 rounded-lg shadow-sm hover:bg-primary hover:text-white transition-colors duration-200 card-hover">
+                        🏫 Школа №2
+                    </button>
+                    <button onclick="selectSchool('Школа №3')" class="w-full bg-white border-2 border-primary text-primary font-medium py-3 px-4 rounded-lg shadow-sm hover:bg-primary hover:text-white transition-colors duration-200 card-hover">
+                        🏫 Школа №3
+                    </button>
+                    <button onclick="selectSchool('Школа №4')" class="w-full bg-white border-2 border-primary text-primary font-medium py-3 px-4 rounded-lg shadow-sm hover:bg-primary hover:text-white transition-colors duration-200 card-hover">
+                        🏫 Школа №4
+                    </button>
+                    <button onclick="selectSchool('Школа №5')" class="w-full bg-white border-2 border-primary text-primary font-medium py-3 px-4 rounded-lg shadow-sm hover:bg-primary hover:text-white transition-colors duration-200 card-hover">
+                        🏫 Школа №5
+                    </button>
+                </div>
+            </div>
+
+            <!-- Role Selection Screen -->
+            <div id="roleScreen" class="hidden fade-in">
+                <h2 class="text-lg font-semibold mb-4 text-center">Вы покупатель или продавец?</h2>
+                <div class="flex space-x-3">
+                    <button onclick="selectRole('buyer')" class="flex-1 bg-white border-2 border-green-500 text-green-500 font-medium py-3 px-4 rounded-lg shadow-sm hover:bg-green-500 hover:text-white transition-colors duration-200 card-hover">
+                        🛒 Покупатель
+                    </button>
+                    <button onclick="selectRole('seller')" class="flex-1 bg-white border-2 border-blue-500 text-blue-500 font-medium py-3 px-4 rounded-lg shadow-sm hover:bg-blue-500 hover:text-white transition-colors duration-200 card-hover">
+                        💼 Продавец
+                    </button>
+                </div>
+            </div>
+
+            <!-- Buyer Screen - Product Catalog -->
+            <div id="buyerScreen" class="hidden fade-in">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-semibold">Доступные товары</h2>
+                    <button onclick="goBackToRole()" class="text-sm bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded">
+                        Назад
+                    </button>
+                </div>
+                
+                <div id="productList" class="space-y-3">
+                    <!-- Products will be dynamically added here -->
+                </div>
+            </div>
+
+            <!-- Seller Screen - Profile -->
+            <div id="sellerScreen" class="hidden fade-in">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-semibold">Мой профиль</h2>
+                    <button onclick="goBackToRole()" class="text-sm bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded">
+                        Назад
+                    </button>
+                </div>
+                
+                <div class="bg-white p-4 rounded-lg shadow mb-4">
+                    <div class="flex items-center space-x-3 mb-3">
+                        <div class="w-12 h-12 bg-primary rounded-full flex items-center justify-center text-white font-bold">
+                            А
+                        </div>
+                        <div>
+                            <p class="font-medium">Алексей Иванов</p>
+                            <p class="text-sm text-gray-500">Продавец</p>
+                        </div>
+                    </div>
+                    <button onclick="showAddProductForm()" class="w-full bg-primary text-white font-medium py-2 px-4 rounded-lg hover:bg-secondary transition-colors duration-200">
+                        📸 Добавить товар
+                    </button>
+                </div>
+
+                <h3 class="font-medium mb-3">Мои товары</h3>
+                <div id="sellerProductList" class="space-y-3">
+                    <!-- Seller's products will be dynamically added here -->
+                </div>
+            </div>
+
+            <!-- Add Product Form -->
+            <div id="addProductForm" class="hidden fade-in">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-semibold">Добавить товар</h2>
+                    <button onclick="goBackToSeller()" class="text-sm bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded">
+                        Назад
+                    </button>
+                </div>
+                
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Название товара</label>
+                            <input type="text" id="productName" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Введите название">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Описание</label>
+                            <textarea id="productDescription" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary" rows="3" placeholder="Опишите товар"></textarea>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Категория</label>
+                            <select id="productCategory" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary">
+                                <option value="books">Учебники</option>
+                                <option value="stationery">Канцелярия</option>
+                                <option value="electronics">Электроника</option>
+                                <option value="other">Другое</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Фотографии (минимум 1)</label>
+                            <input type="file" id="productPhotos" class="w-full border border-gray-300 rounded-lg px-3 py-2" accept="image/*" multiple>
+                            <p class="text-xs text-gray-500 mt-1">Нажмите, чтобы добавить фотографии</p>
+                        </div>
+                        
+                        <button onclick="submitProduct()" class="w-full bg-primary text-white font-medium py-3 px-4 rounded-lg hover:bg-secondary transition-colors duration-200 mt-4">
+                            Отправить на модерацию
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Detail View -->
+            <div id="productDetail" class="hidden fade-in">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-semibold">Товар</h2>
+                    <button onclick="goBackToBuyer()" class="text-sm bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded">
+                        Назад
+                    </button>
+                </div>
+                
+                <div id="productDetailContent" class="bg-white rounded-lg shadow overflow-hidden">
+                    <!-- Product details will be inserted here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Moderator Panel -->
+    <div id="moderatorPanel" class="max-w-md mx-auto bg-white min-h-screen flex flex-col hidden">
+        <!-- Header -->
+        <div class="bg-primary text-white p-4 shadow-md">
+            <h1 class="text-xl font-bold text-center">Панель модерации</h1>
+            <p class="text-sm opacity-90 text-center mt-1">School Market</p>
+        </div>
+
+        <!-- Login Screen -->
+        <div id="loginScreen" class="flex-1 p-4 flex flex-col items-center justify-center fade-in">
+            <div class="w-20 h-20 bg-primary rounded-full flex items-center justify-center mb-6">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                </svg>
+            </div>
+            
+            <h2 class="text-2xl font-bold mb-6 text-center">Доступ модератора</h2>
+            
+            <div class="w-full space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Логин</label>
+                    <input type="text" id="moderatorLogin" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Введите логин">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Пароль</label>
+                    <input type="password" id="moderatorPassword" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Введите пароль">
+                </div>
+                
+                <button onclick="moderatorLogin()" class="w-full bg-primary text-white font-medium py-3 px-4 rounded-lg hover:bg-secondary transition-colors duration-200 mt-2">
+                    Войти
+                </button>
+            </div>
+            
+            <div class="mt-6 text-center">
+                <h3 class="font-semibold mb-2">Инструкция по входу:</h3>
+                <div class="bg-gray-50 p-3 rounded-lg text-sm text-gray-600">
+                    <p class="mb-1">1. Откройте Telegram</p>
+                    <p class="mb-1">2. Найдите бота School Market</p>
+                    <p class="mb-1">3. Перейдите в меню и выберите "Панель модерации"</p>
+                    <p class="mb-1">4. Введите логин: <span class="font-medium text-primary">moderator</span></p>
+                    <p>5. Введите пароль: <span class="font-medium text-primary">school2023</span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Screen -->
+        <div id="dashboardScreen" class="hidden flex-1 flex-col fade-in">
+            <div class="p-4 border-b border-gray-200">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-lg font-semibold">Модерация товаров</h2>
+                    <div class="flex items-center space-x-2">
+                        <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                        <span class="text-sm text-gray-600">В сети</span>
+                        <button onclick="moderatorLogout()" class="text-sm bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded">
+                            Выход
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-4 bg-gray-50 border-b border-gray-200">
+                <div class="flex space-x-1">
+                    <button onclick="filterApplications('all')" class="px-3 py-1 bg-primary text-white rounded text-sm font-medium">Все заявки</button>
+                    <button onclick="filterApplications('pending')" class="px-3 py-1 bg-white border border-gray-300 rounded text-sm hover:bg-gray-100">На модерации</button>
+                    <button onclick="filterApplications('approved')" class="px-3 py-1 bg-white border border-gray-300 rounded text-sm hover:bg-gray-100">Одобрено</button>
+                    <button onclick="filterApplications('rejected')" class="px-3 py-1 bg-white border border-gray-300 rounded text-sm hover:bg-gray-100">Отклонено</button>
+                </div>
+            </div>
+            
+            <div id="applicationsList" class="flex-1 p-4 overflow-y-auto">
+                <!-- Applications will be dynamically added here -->
+            </div>
+        </div>
+
+        <!-- Application Detail Modal -->
+        <div id="applicationModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div class="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-hidden flex flex-col">
+                <div class="bg-primary text-white p-4">
+                    <h3 id="modalTitle" class="font-bold">Детали заявки</h3>
+                </div>
+                
+                <div id="modalContent" class="p-4 overflow-y-auto flex-1">
+                    <!-- Content will be inserted here -->
+                </div>
+                
+                <div id="modalActions" class="p-4 bg-gray-50 border-t border-gray-200">
+                    <div class="flex space-x-2">
+                        <button onclick="rejectApplication()" class="flex-1 bg-danger text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-colors duration-200">
+                            Отклонить
+                        </button>
+                        <button onclick="approveApplication()" class="flex-1 bg-success text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors duration-200">
+                            Одобрить
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Success Modal -->
+        <div id="successModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div class="bg-white rounded-lg p-6 max-w-sm w-full">
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                    </div>
+                    <h3 id="modalMessage" class="text-lg font-semibold mb-2">Операция выполнена</h3>
+                    <p class="text-gray-600 mb-4">Статус заявки успешно изменен.</p>
+                    <button onclick="closeModal()" class="w-full bg-primary text-white py-2 px-4 rounded-lg hover:bg-secondary transition-colors duration-200">
+                        Понятно
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== DATA ====================
+        // Mock data for products
+        const mockProducts = [
+            {
+                id: 1,
+                name: "Учебник по математике 10 класс",
+                description: "Отличное состояние, без пометок. Использовался один учебный год.",
+                category: "books",
+                price: "500 руб.",
+                school: "Школа №1",
+                seller: "Алексей Иванов",
+                sellerUsername: "@alex_ivanov",
+                photos: ["https://placehold.co/300x200/e2e8f0/64748b?text=Учебник+по+математике"],
+                createdAt: "2023-10-15"
+            },
+            {
+                id: 2,
+                name: "Набор гелевых ручек",
+                description: "12 цветов, новые, в упаковке. Куплены для школы, но не понадобились.",
+                category: "stationery",
+                price: "300 руб.",
+                school: "Школа №1",
+                seller: "Мария Петрова",
+                sellerUsername: "@masha_petrova",
+                photos: ["https://placehold.co/300x200/e2e8f0/64748b?text=Ручки"],
+                createdAt: "2023-10-14"
+            },
+            {
+                id: 3,
+                name: "Наушники Bluetooth",
+                description: "Практически новые, использовались редко. Полный комплект.",
+                category: "electronics",
+                price: "1500 руб.",
+                school: "Школа №1",
+                seller: "Дмитрий Сидоров",
+                sellerUsername: "@dmitry_sidorov",
+                photos: ["https://placehold.co/300x200/e2e8f0/64748b?text=Наушники"],
+                createdAt: "2023-10-13"
+            }
+        ];
+
+        // Mock data for moderation applications
+        const mockApplications = [
+            {
+                id: 1,
+                productName: "Учебник по физике 11 класс",
+                description: "Практически новый, использовался всего 2 месяца. Без пометок и повреждений.",
+                category: "books",
+                school: "Школа №3",
+                seller: "Иван Петров",
+                sellerUsername: "@ivan_petrov_school3",
+                photos: [
+                    "https://placehold.co/300x200/e2e8f0/64748b?text=Учебник+по+физике",
+                    "https://placehold.co/300x200/e2e8f0/64748b?text=Учебник+по+физике+обложка"
+                ],
+                status: "pending",
+                submittedAt: "2023-10-15T14:30:00Z",
+                reason: ""
+            },
+            {
+                id: 2,
+                productName: "Ноутбук Lenovo",
+                description: "Мощный ноутбук для учебы и работы. 8GB RAM, 256GB SSD. Работает отлично.",
+                category: "electronics",
+                school: "Школа №1",
+                seller: "Елена Смирнова",
+                sellerUsername: "@elena_smirnova_school1",
+                photos: [
+                    "https://placehold.co/300x200/e2e8f0/64748b?text=Ноутбук+Lenovo"
+                ],
+                status: "pending",
+                submittedAt: "2023-10-15T12:15:00Z",
+                reason: ""
+            },
+            {
+                id: 3,
+                productName: "Краски акварельные",
+                description: "Новый набор акварельных красок 24 цвета. Не вскрывался.",
+                category: "stationery",
+                school: "Школа №5",
+                seller: "Анна Козлова",
+                sellerUsername: "@anna_kozlova_school5",
+                photos: [
+                    "https://placehold.co/300x200/e2e8f0/64748b?text=Акварельные+краски"
+                ],
+                status: "approved",
+                approvedAt: "2023-10-14T16:45:00Z",
+                approvedBy: "moderator",
+                reason: ""
+            },
+            {
+                id: 4,
+                productName: "Сигареты",
+                description: "Продаю сигареты оптом и в розницу. Качественные, недорого.",
+                category: "other",
+                school: "Школа №2",
+                seller: "Алексей Иванов",
+                sellerUsername: "@alex_ivanov_school2",
+                photos: [
+                    "https://placehold.co/300x200/e2e8f0/64748b?text=Сигареты"
+                ],
+                status: "rejected",
+                rejectedAt: "2023-10-14T10:20:00Z",
+                rejectedBy: "moderator",
+                reason: "Запрещенный товар согласно правилам платформы"
+            }
+        ];
+
+        // App state
+        let currentSchool = '';
+        let currentUserRole = '';
+        let selectedProduct = null;
+        let currentUser = null;
+        let currentFilter = 'all';
+
+        // Initialize Telegram WebApp
+        const tg = window.Telegram?.WebApp;
+        if (tg) {
+            tg.ready();
+            tg.expand();
+        }
+
+        // ==================== MAIN APP FUNCTIONS ====================
+        function selectSchool(school) {
+            currentSchool = school;
+            document.getElementById('schoolScreen').classList.add('hidden');
+            document.getElementById('roleScreen').classList.remove('hidden');
+        }
+
+        function selectRole(role) {
+            currentUserRole = role;
+            if (role === 'buyer') {
+                showBuyerScreen();
+            } else {
+                showSellerScreen();
+            }
+        }
+
+        function showBuyerScreen() {
+            document.getElementById('roleScreen').classList.add('hidden');
+            document.getElementById('buyerScreen').classList.remove('hidden');
+            renderProductList();
+        }
+
+        function showSellerScreen() {
+            document.getElementById('roleScreen').classList.add('hidden');
+            document.getElementById('sellerScreen').classList.remove('hidden');
+            renderSellerProducts();
+        }
+
+        function showAddProductForm() {
+            document.getElementById('sellerScreen').classList.add('hidden');
+            document.getElementById('addProductForm').classList.remove('hidden');
+        }
+
+        function goBackToRole() {
+            document.getElementById('buyerScreen').classList.add('hidden');
+            document.getElementById('sellerScreen').classList.add('hidden');
+            document.getElementById('addProductForm').classList.add('hidden');
+            document.getElementById('productDetail').classList.add('hidden');
+            document.getElementById('roleScreen').classList.remove('hidden');
+        }
+
+        function goBackToSeller() {
+            document.getElementById('addProductForm').classList.add('hidden');
+            document.getElementById('sellerScreen').classList.remove('hidden');
+        }
+
+        function goBackToBuyer() {
+            document.getElementById('productDetail').classList.add('hidden');
+            document.getElementById('buyerScreen').classList.remove('hidden');
+        }
+
+        function renderProductList() {
+            const productList = document.getElementById('productList');
+            productList.innerHTML = '';
+
+            const filteredProducts = mockProducts.filter(product => product.school === currentSchool);
+            
+            if (filteredProducts.length === 0) {
+                productList.innerHTML = '<p class="text-center text-gray-500 py-4">Пока нет доступных товаров</p>';
+                return;
+            }
+
+            filteredProducts.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'bg-white rounded-lg shadow card-hover overflow-hidden';
+                productCard.innerHTML = `
+                    <img src="${product.photos[0]}" alt="${product.name}" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <h3 class="font-semibold text-lg mb-1">${product.name}</h3>
+                        <p class="text-gray-600 text-sm mb-2 line-clamp-2">${product.description}</p>
+                        <div class="flex justify-between items-center">
+                            <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">${product.category === 'books' ? '📚 Учебники' : product.category === 'stationery' ? '✏️ Канцелярия' : '📱 Электроника'}</span>
+                            <span class="font-bold text-primary">${product.price}</span>
+                        </div>
+                        <button onclick="viewProduct(${product.id})" class="w-full mt-3 bg-primary text-white py-2 px-4 rounded-lg hover:bg-secondary transition-colors duration-200">
+                            Подробнее
+                        </button>
+                    </div>
+                `;
+                productList.appendChild(productCard);
+            });
+        }
+
+        function renderSellerProducts() {
+            const productList = document.getElementById('sellerProductList');
+            productList.innerHTML = '';
+
+            const sellerProducts = mockProducts.filter(product => 
+                product.seller === "Алексей Иванов" && product.school === currentSchool
+            );
+            
+            if (sellerProducts.length === 0) {
+                productList.innerHTML = '<p class="text-center text-gray-500 py-4">У вас пока нет товаров</p>';
+                return;
+            }
+
+            sellerProducts.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'bg-white rounded-lg shadow card-hover overflow-hidden';
+                productCard.innerHTML = `
+                    <img src="${product.photos[0]}" alt="${product.name}" class="w-full h-32 object-cover">
+                    <div class="p-3">
+                        <h3 class="font-semibold text-sm mb-1">${product.name}</h3>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs text-gray-500">${product.category === 'books' ? '📚 Учебники' : product.category === 'stationery' ? '✏️ Канцелярия' : '📱 Электроника'}</span>
+                            <span class="font-bold text-primary text-sm">${product.price}</span>
+                        </div>
+                    </div>
+                `;
+                productList.appendChild(productCard);
+            });
+        }
+
+        function viewProduct(productId) {
+            selectedProduct = mockProducts.find(p => p.id === productId);
+            if (!selectedProduct) return;
+
+            document.getElementById('buyerScreen').classList.add('hidden');
+            document.getElementById('productDetail').classList.remove('hidden');
+            
+            const content = document.getElementById('productDetailContent');
+            content.innerHTML = `
+                <div class="relative">
+                    <img src="${selectedProduct.photos[0]}" alt="${selectedProduct.name}" class="w-full h-64 object-cover">
+                </div>
+                <div class="p-4">
+                    <h3 class="font-bold text-xl mb-2">${selectedProduct.name}</h3>
+                    <p class="text-gray-700 mb-4">${selectedProduct.description}</p>
+                    <div class="bg-gray-50 p-3 rounded-lg mb-4">
+                        <div class="flex justify-between mb-2">
+                            <span class="text-gray-600">Цена:</span>
+                            <span class="font-bold text-primary">${selectedProduct.price}</span>
+                        </div>
+                        <div class="flex justify-between mb-2">
+                            <span class="text-gray-600">Категория:</span>
+                            <span>${selectedProduct.category === 'books' ? '📚 Учебники' : selectedProduct.category === 'stationery' ? '✏️ Канцелярия' : '📱 Электроника'}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Продавец:</span>
+                            <span class="font-medium">${selectedProduct.seller}</span>
+                        </div>
+                    </div>
+                    <h4 class="font-semibold mb-2">Способ получения:</h4>
+                    <div class="space-y-2 mb-4">
+                        <label class="flex items-center">
+                            <input type="radio" name="delivery" value="personal" class="mr-2" checked>
+                            Личная встреча
+                        </label>
+                        <label class="flex items-center">
+                            <input type="radio" name="delivery" value="locker" class="mr-2">
+                            Тайник
+                        </label>
+                    </div>
+                    <button onclick="completePurchase()" class="w-full bg-primary text-white font-medium py-3 px-4 rounded-lg hover:bg-secondary transition-colors duration-200">
+                        Связаться с продавцом
+                    </button>
+                </div>
+            `;
+        }
+
+        function completePurchase() {
+            const deliveryMethod = document.querySelector('input[name="delivery"]:checked').value;
+            const methodText = deliveryMethod === 'personal' ? 'личной встрече' : 'тайнике';
+            
+            // In a real app, this would send a message to the admin
+            console.log(`Покупатель хочет связаться с продавцом @${selectedProduct.sellerUsername} для ${methodText}`);
+            
+            // Show success message (in a real app, this would be a Telegram message)
+            alert(`Свяжитесь с продавцом в Telegram: ${selectedProduct.sellerUsername}\n\nСпособ получения: ${methodText === 'личной встрече' ? 'Личная встреча' : 'Тайник'}`);
+        }
+
+        function submitProduct() {
+            const name = document.getElementById('productName').value;
+            const description = document.getElementById('productDescription').value;
+            const category = document.getElementById('productCategory').value;
+            const photosInput = document.getElementById('productPhotos');
+            const photos = photosInput.files;
+            
+            if (!name || !description || photos.length === 0) {
+                alert('Пожалуйста, заполните все поля и добавьте хотя бы одну фотографию');
+                return;
+            }
+            
+            // In a real app, this would send data to the server
+            console.log('Новый товар на модерацию:', { name, description, category, photos: photos.length });
+            
+            // Add to mock applications (for demo)
+            const newApp = {
+                id: mockApplications.length + 1,
+                productName: name,
+                description: description,
+                category: category,
+                school: currentSchool,
+                seller: "Алексей Иванов",
+                sellerUsername: "@alex_ivanov",
+                photos: Array(photos.length).fill().map(() => "https://placehold.co/300x200/e2e8f0/64748b?text=Новое+фото"),
+                status: "pending",
+                submittedAt: new Date().toISOString(),
+                reason: ""
+            };
+            mockApplications.unshift(newApp);
+            
+            // Reset form
+            document.getElementById('productName').value = '';
+            document.getElementById('productDescription').value = '';
+            document.getElementById('productCategory').value = 'books';
+            photosInput.value = '';
+            
+            // Go back to seller screen
+            goBackToSeller();
+            alert('Ваш товар отправлен на модерацию! Администратор проверит его в ближайшее время.');
+        }
+
+        // ==================== MODERATOR PANEL FUNCTIONS ====================
+        function showModeratorPanel() {
+            document.getElementById('app').classList.add('hidden');
+            document.getElementById('moderatorPanel').classList.remove('hidden');
+            document.getElementById('loginScreen').classList.remove('hidden');
+        }
+
+        function hideModeratorPanel() {
+            document.getElementById('moderatorPanel').classList.add('hidden');
+            document.getElementById('app').classList.remove('hidden');
+        }
+
+        function moderatorLogin() {
+            const login = document.getElementById('moderatorLogin').value;
+            const password = document.getElementById('moderatorPassword').value;
+            
+            // In a real app, this would be a server request
+            if (login === 'moderator' && password === 'school2023') {
+                currentUser = { username: login };
+                document.getElementById('loginScreen').classList.add('hidden');
+                document.getElementById('dashboardScreen').classList.remove('hidden');
+                renderApplicationsList();
+            } else {
+                alert('Неверный логин или пароль. Используйте: login: moderator, password: school2023');
+            }
+        }
+
+        function moderatorLogout() {
+            if (confirm('Вы действительно хотите выйти из панели модерации?')) {
+                currentUser = null;
+                document.getElementById('dashboardScreen').classList.add('hidden');
+                document.getElementById('loginScreen').classList.remove('hidden');
+                
+                // Clear form fields
+                document.getElementById('moderatorLogin').value = '';
+                document.getElementById('moderatorPassword').value = '';
+            }
+        }
+
+        function filterApplications(filter) {
+            currentFilter = filter;
+            document.querySelectorAll('.bg-primary').forEach(btn => {
+                btn.className = btn.className.replace('bg-primary text-white', 'bg-white border border-gray-300');
+            });
+            
+            const activeButton = document.querySelector(`[onclick="filterApplications('${filter}')"]`);
+            activeButton.className = activeButton.className.replace('bg-white border border-gray-300', 'bg-primary text-white');
+            
+            renderApplicationsList();
+        }
+
+        function renderApplicationsList() {
+            const list = document.getElementById('applicationsList');
+            list.innerHTML = '';
+            
+            let filteredApps = mockApplications;
+            
+            if (currentFilter === 'pending') {
+                filteredApps = mockApplications.filter(app => app.status === 'pending');
+            } else if (currentFilter === 'approved') {
+                filteredApps = mockApplications.filter(app => app.status === 'approved');
+            } else if (currentFilter === 'rejected') {
+                filteredApps = mockApplications.filter(app => app.status === 'rejected');
+            }
+            
+            if (filteredApps.length === 0) {
+                list.innerHTML = '<p class="text-center text-gray-500 py-4">Нет заявок, соответствующих критериям</p>';
+                return;
+            }
+            
+            filteredApps.forEach(app => {
+                const appCard = document.createElement('div');
+                appCard.className = 'bg-white rounded-lg shadow card-hover mb-3 overflow-hidden';
+                appCard.innerHTML = `
+                    <img src="${app.photos[0]}" alt="${app.productName}" class="w-full h-32 object-cover">
+                    <div class="p-3">
+                        <div class="flex justify-between items-start mb-1">
+                            <h3 class="font-semibold text-sm">${app.productName}</h3>
+                            <span class="status-badge status-${app.status}">${getStatusText(app.status)}</span>
+                        </div>
+                        <p class="text-gray-600 text-xs mb-2">${app.description.substring(0, 60)}${app.description.length > 60 ? '...' : ''}</p>
+                        <div class="flex justify-between items-center text-xs text-gray-500">
+                            <span>${app.school}</span>
+                            <span>${formatDate(app.submittedAt)}</span>
+                        </div>
+                        <button onclick="viewApplication(${app.id})" class="w-full mt-2 bg-primary text-white text-xs py-1 px-3 rounded hover:bg-secondary transition-colors duration-200">
+                            Просмотреть
+                        </button>
+                    </div>
+                `;
+                list.appendChild(appCard);
+            });
+        }
+
+        function getStatusText(status) {
+            switch (status) {
+                case 'pending': return 'На модерации';
+                case 'approved': return 'Одобрено';
+                case 'rejected': return 'Отклонено';
+                default: return 'Неизвестно';
+            }
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+        }
+
+        function viewApplication(applicationId) {
+            const app = mockApplications.find(a => a.id === applicationId);
+            if (!app) return;
+            
+            const modalContent = document.getElementById('modalContent');
+            modalContent.innerHTML = `
+                <div class="space-y-4">
+                    <div>
+                        <h4 class="font-semibold mb-2">${app.productName}</h4>
+                        <p class="text-gray-700">${app.description}</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <span class="text-sm text-gray-600">Категория</span>
+                            <p class="font-medium">${app.category === 'books' ? '📚 Учебники' : app.category === 'stationery' ? '✏️ Канцелярия' : app.category === 'electronics' ? '📱 Электроника' : '📦 Другое'}</p>
+                        </div>
+                        <div>
+                            <span class="text-sm text-gray-600">Школа</span>
+                            <p class="font-medium">${app.school}</p>
+                        </div>
+                        <div>
+                            <span class="text-sm text-gray-600">Продавец</span>
+                            <p class="font-medium">${app.seller}</p>
+                        </div>
+                        <div>
+                            <span class="text-sm text-gray-600">Юзернейм</span>
+                            <p class="font-medium">${app.sellerUsername}</p>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <span class="text-sm text-gray-600">Фотографии</span>
+                        <div class="flex space-x-2 mt-2">
+                            ${app.photos.map(photo => `<img src="${photo}" alt="Фото товара" class="w-16 h-16 object-cover rounded">`).join('')}
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <span class="text-sm text-gray-600">Дата подачи</span>
+                        <p class="font-medium">${formatDate(app.submittedAt)}</p>
+                    </div>
+                    
+                    ${app.reason ? `
+                    <div class="bg-red-50 p-3 rounded-lg">
+                        <span class="text-sm text-red-800 font-medium">Причина отклонения:</span>
+                        <p class="text-red-700 mt-1">${app.reason}</p>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+            
+            document.getElementById('modalTitle').textContent = `Заявка #${app.id}`;
+            document.getElementById('applicationModal').classList.remove('hidden');
+        }
+
+        function approveApplication() {
+            if (confirm('Вы уверены, что хотите одобрить эту заявку? Товар станет доступен для покупки.')) {
+                const modal = document.getElementById('applicationModal');
+                const title = document.getElementById('modalTitle').textContent;
+                const appId = parseInt(title.match(/#(\d+)/)[1]);
+                
+                const app = mockApplications.find(a => a.id === appId);
+                if (app) {
+                    app.status = 'approved';
+                    app.approvedAt = new Date().toISOString();
+                    app.approvedBy = currentUser.username;
+                }
+                
+                document.getElementById('applicationModal').classList.add('hidden');
+                document.getElementById('modalMessage').textContent = 'Заявка одобрена';
+                document.getElementById('successModal').classList.remove('hidden');
+                
+                // Refresh the list
+                renderApplicationsList();
+            }
+        }
+
+        function rejectApplication() {
+            const reason = prompt('Введите причину отклонения заявки:', '');
+            if (reason) {
+                const modal = document.getElementById('applicationModal');
+                const title = document.getElementById('modalTitle').textContent;
+                const appId = parseInt(title.match(/#(\d+)/)[1]);
+                
+                const app = mockApplications.find(a => a.id === appId);
+                if (app) {
+                    app.status = 'rejected';
+                    app.rejectedAt = new Date().toISOString();
+                    app.rejectedBy = currentUser.username;
+                    app.reason = reason;
+                }
+                
+                document.getElementById('applicationModal').classList.add('hidden');
+                document.getElementById('modalMessage').textContent = 'Заявка отклонена';
+                document.getElementById('successModal').classList.remove('hidden');
+                
+                // Refresh the list
+                renderApplicationsList();
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('successModal').classList.add('hidden');
+            document.getElementById('applicationModal').classList.add('hidden');
+        }
+
+        // Close modals when clicking outside
+        document.getElementById('applicationModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        document.getElementById('successModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Initialize the app
+        window.onload = function() {
+            // Add event listener for Telegram button (if available)
+            if (tg) {
+                tg.MainButton.setText("Панель модерации");
+                tg.MainButton.show();
+                tg.MainButton.onClick(showModeratorPanel);
+            }
+        };
+    </script>
+</body>
+</html>

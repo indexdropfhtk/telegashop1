@@ -284,6 +284,112 @@
             color: #0a84ff;
             border-bottom: 2px solid #0a84ff;
         }
+        
+        .profile-section {
+            padding: 16px;
+            background-color: #2c2c2e;
+            border: 1px solid #3a3a3c;
+            border-radius: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .profile-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .profile-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 4px;
+        }
+        
+        .profile-username {
+            font-size: 14px;
+            color: #8e8e93;
+            margin-bottom: 8px;
+        }
+        
+        .profile-status {
+            font-size: 14px;
+            color: #8e8e93;
+            margin-bottom: 16px;
+        }
+        
+        .profile-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .profile-action {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 16px;
+            background-color: #3a3a3c;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        
+        .profile-action:hover {
+            background-color: #475569;
+        }
+        
+        .profile-action-icon {
+            color: #8e8e93;
+        }
+        
+        .profile-action-text {
+            color: white;
+            font-size: 14px;
+        }
+        
+        .profile-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-top: 16px;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 18px;
+            font-weight: 600;
+            color: white;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #8e8e93;
+        }
+        
+        .profile-achievements {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 8px 0;
+            margin-top: 16px;
+        }
+        
+        .achievement {
+            flex-shrink: 0;
+            width: 64px;
+            height: 64px;
+            background: #3a3a3c;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
     </style>
 </head>
 <body>
@@ -393,47 +499,46 @@
 
             <!-- Profile Screen -->
             <div id="profileScreen" class="hidden">
-                <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 24px;">
-                    <img id="profileAvatar" src="https://placehold.co/64x64/1c1c1e/ffffff?text=User" alt="User avatar" class="profile-avatar" style="margin-bottom: 16px;">
-                    <h3 id="profileUsername" style="font-size: 20px; font-weight: 600; color: white;">wibe_developer</h3>
-                    <p id="profileRole" style="color: #8e8e93;">Продавец</p>
-                    <p id="profileCitySchool" style="color: #8e8e93; font-size: 14px;">Сыктывкар, Пушкинская гимназия</p>
-                </div>
-                
-                <div class="ios-card">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                        <span style="color: #8e8e93; font-size: 14px;">Уровень</span>
-                        <span id="profileLevel" style="color: white; font-weight: 500;">Уровень 1</span>
+                <div class="profile-section">
+                    <div class="profile-info">
+                        <img id="profileAvatar" src="https://placehold.co/64x64/1c1c1e/ffffff?text=User" alt="User avatar" class="profile-avatar" style="margin-bottom: 16px;">
+                        <div class="profile-name" id="profileUsername">wibe_developer</div>
+                        <div class="profile-username" id="profileUsername">@Ggdhdhdgxv</div>
+                        <div class="profile-status" id="profileStatus">Администратор</div>
                     </div>
-                    <div class="level-progress">
-                        <div id="profileProgress" class="level-progress-fill"></div>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; margin-top: 4px;">
-                        <span style="font-size: 12px; color: #8e8e93;">0 / 100 XP</span>
-                        <span style="font-size: 12px; color: #8e8e93;">Уровень 2</span>
-                    </div>
-                </div>
-                
-                <div class="ios-card">
-                    <h3 style="font-weight: 500; color: white; margin-bottom: 8px;">Статистика</h3>
-                    <div style="display: flex; justify-content: space-between; text-align: center;">
-                        <div>
-                            <p id="totalVolume" style="font-size: 24px; font-weight: 600; color: white; margin-bottom: 4px;">0</p>
-                            <p style="font-size: 12px; color: #8e8e93;">Объем</p>
+                    
+                    <div class="profile-actions">
+                        <div class="profile-action" onclick="navigateTo('settings')">
+                            <span class="profile-action-icon">⚙️</span>
+                            <span class="profile-action-text">Настройки</span>
                         </div>
-                        <div>
-                            <p id="totalPurchased" style="font-size: 24px; font-weight: 600; color: white; margin-bottom: 4px;">0</p>
-                            <p style="font-size: 12px; color: #8e8e93;">Куплено</p>
-                        </div>
-                        <div>
-                            <p id="totalSold" style="font-size: 24px; font-weight: 600; color: white; margin-bottom: 4px;">0</p>
-                            <p style="font-size: 12px; color: #8e8e93;">Продано</p>
+                        <div class="profile-action" onclick="openModerationPanel()">
+                            <span class="profile-action-icon">🛡️</span>
+                            <span class="profile-action-text">Модерация</span>
                         </div>
                     </div>
-                </div>
-                
-                <div class="ios-card">
-                    <button onclick="navigateTo('settings')" style="width: 100%; color: white; font-weight: 500; padding: 12px 0; background: none; text-align: center;">⚙️ Настройки</button>
+                    
+                    <div class="profile-stats">
+                        <div class="stat-item">
+                            <div class="stat-value" id="totalVolume">0</div>
+                            <div class="stat-label">Объем</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="totalPurchased">0</div>
+                            <div class="stat-label">Куплено</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="totalSold">0</div>
+                            <div class="stat-label">Продано</div>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-achievements">
+                        <div class="achievement">🌟</div>
+                        <div class="achievement">🥉</div>
+                        <div class="achievement">🥈</div>
+                        <div class="achievement">🥇</div>
+                    </div>
                 </div>
             </div>
 
@@ -573,11 +678,7 @@
                     <i>🛍️</i>
                     <span>Товары</span>
                 </div>
-                <div onclick="openModerationPanel()" class="nav-item" id="moderationButton" style="display: none;">
-                    <i>🛡️</i>
-                    <span>Модерация</span>
-                </div>
-                <div onclick="navigateTo('purchases')" class="nav-item" id="actionButton">
+                <div onclick="navigateTo('purchases')" class="nav-item">
                     <i id="actionButtonIcon">🛒</i>
                     <span id="actionButtonText">Купить</span>
                 </div>
@@ -724,10 +825,9 @@
             // Update profile info
             const avatar = document.getElementById('profileAvatar');
             const username = document.getElementById('profileUsername');
-            const role = document.getElementById('profileRole');
-            const citySchool = document.getElementById('profileCitySchool');
+            const role = document.getElementById('profileStatus');
             
-            if (avatar && username && role && citySchool) {
+            if (avatar && username && role) {
                 avatar.src = currentUser.photo_url || 'https://placehold.co/64x64/1c1c1e/ffffff?text=User';
                 username.textContent = currentUser.username ? `@${currentUser.username}` : 'Пользователь';
                 
@@ -739,26 +839,14 @@
                 } else {
                     role.textContent = currentUserRole === 'buyer' ? 'Покупатель' : 'Продавец';
                 }
-                
-                // Update city and school info
-                if (currentCity && currentSchool) {
-                    citySchool.textContent = `${currentCity}, ${currentSchool}`;
-                    citySchool.style.display = 'block';
-                } else {
-                    citySchool.style.display = 'none';
-                }
             }
             
             // Update stats
-            const level = document.getElementById('profileLevel');
-            const progress = document.getElementById('profileProgress');
             const volume = document.getElementById('totalVolume');
             const purchased = document.getElementById('totalPurchased');
             const sold = document.getElementById('totalSold');
             
-            if (level && progress && volume && purchased && sold) {
-                level.textContent = `Уровень ${userStats.level}`;
-                progress.style.width = `${(userStats.xp % 100)}%`;
+            if (volume && purchased && sold) {
                 volume.textContent = userStats.totalVolume;
                 purchased.textContent = userStats.totalPurchased;
                 sold.textContent = userStats.totalSold;
@@ -768,23 +856,14 @@
             const actionButton = document.getElementById('actionButton');
             const actionButtonIcon = document.getElementById('actionButtonIcon');
             const actionButtonText = document.getElementById('actionButtonText');
-            const moderationButton = document.getElementById('moderationButton');
             
-            if (actionButton && actionButtonIcon && actionButtonText && moderationButton) {
-                if (isAdmin || isModerator) {
-                    actionButton.style.display = 'none';
-                    moderationButton.style.display = 'flex';
+            if (actionButton && actionButtonIcon && actionButtonText) {
+                if (currentUserRole === 'seller') {
+                    actionButtonIcon.textContent = '📸';
+                    actionButtonText.textContent = 'Товары';
                 } else {
-                    actionButton.style.display = 'flex';
-                    moderationButton.style.display = 'none';
-                    
-                    if (currentUserRole === 'seller') {
-                        actionButtonIcon.textContent = '📸';
-                        actionButtonText.textContent = 'Товары';
-                    } else {
-                        actionButtonIcon.textContent = '🛒';
-                        actionButtonText.textContent = 'Купить';
-                    }
+                    actionButtonIcon.textContent = '🛒';
+                    actionButtonText.textContent = 'Купить';
                 }
             }
         }
@@ -851,11 +930,8 @@
                     document.querySelector('.nav-item:nth-child(1)').classList.add('active');
                     refreshProducts();
                 } else if (screen === 'purchases') {
-                    // Find the correct action button based on role
-                    const actionBtn = document.getElementById('actionButton');
-                    if (actionBtn) {
-                        actionBtn.classList.add('active');
-                    }
+                    document.querySelector('.nav-item:nth-child(2)').classList.add('active');
+                    refreshPurchases();
                 } else if (screen === 'profile') {
                     document.querySelector('.nav-item:nth-child(3)').classList.add('active');
                     updateProfile();
@@ -1173,15 +1249,6 @@
             } else if (tab === 'users') {
                 content.innerHTML = `
                     <h3 style="font-weight: 600; color: white; margin-bottom: 16px;">Управление пользователями</h3>
-                    ${isAdmin ? `
-                    <div class="ios-card" style="margin-bottom: 16px;">
-                        <h4 style="font-weight: 500; color: white; margin-bottom: 8px;">Назначить модератора</h4>
-                        <div style="space-y: 16px;">
-                            <input type="text" id="moderatorUsername" placeholder="@username">
-                            <button onclick="addModerator()" class="ios-button btn-ripple">Назначить модератором</button>
-                        </div>
-                    </div>
-                    ` : ''}
                     <div id="usersList" style="space-y: 16px;">
                         <div style="text-align: center; padding: 32px 0; color: #8e8e93;">Загрузка пользователей...</div>
                     </div>
@@ -1283,28 +1350,10 @@
             }
         }
 
-        function addModerator() {
-            if (isAdmin) {
-                const username = document.getElementById('moderatorUsername').value.trim();
-                if (username && username.startsWith('@')) {
-                    // In a real app, this would check if user exists and update database
-                    moderators.push(username);
-                    localStorage.setItem('moderators', JSON.stringify(moderators));
-                    
-                    alert(`Пользователь ${username} назначен модератором`);
-                    document.getElementById('moderatorUsername').value = '';
-                    showModerationTab('users');
-                } else {
-                    alert('Введите корректный username (начинается с @)');
-                }
-            } else {
-                alert('У вас нет прав для назначения модераторов');
-            }
-        }
-
         function makeModerator(username) {
             if (isAdmin) {
                 if (confirm(`Вы уверены, что хотите назначить пользователя ${username} модератором?`)) {
+                    // In a real app, this would check if user exists and update database
                     moderators.push(username);
                     localStorage.setItem('moderators', JSON.stringify(moderators));
                     

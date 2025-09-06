@@ -4,9 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>School Market</title>
+    <title>DarkWebShop</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700&display=swap');
         
@@ -59,6 +58,8 @@
             justify-content: center;
             padding: 8px;
             color: #8e8e93;
+            flex: 1;
+            text-align: center;
         }
         
         .nav-item.active {
@@ -246,13 +247,51 @@
             transform: translate(-50%, -50%) scale(10);
             opacity: 0;
         }
+        
+        .admin-panel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 56px;
+            background-color: #1c1c1e;
+            z-index: 1000;
+            padding: 16px;
+            overflow-y: auto;
+        }
+        
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #3a3a3c;
+            margin-bottom: 16px;
+        }
+        
+        .admin-tabs {
+            display: flex;
+            border-bottom: 1px solid #3a3a3c;
+            margin-bottom: 16px;
+        }
+        
+        .admin-tab {
+            padding: 8px 16px;
+            color: #8e8e93;
+            border-bottom: 2px solid transparent;
+        }
+        
+        .admin-tab.active {
+            color: #0a84ff;
+            border-bottom: 2px solid #0a84ff;
+        }
     </style>
 </head>
 <body>
     <div id="app" style="max-width: 414px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; background-color: #1c1c1e;">
         <!-- Header -->
         <div id="header" style="background-color: #1c1c1e; padding: 16px;">
-            <h1 style="font-size: 18px; font-weight: 600; color: white; text-align: center;">School Market</h1>
+            <h1 style="font-size: 18px; font-weight: 600; color: white; text-align: center;">DarkWebShop</h1>
         </div>
 
         <!-- Main Content -->
@@ -267,7 +306,7 @@
             <div id="authScreen" class="hidden">
                 <div class="auth-container">
                     <h2 style="font-size: 20px; font-weight: 600; color: white; margin-bottom: 16px;">Добро пожаловать</h2>
-                    <p style="color: #8e8e93; margin-bottom: 24px; font-size: 16px;">Войдите через Telegram, чтобы начать использовать School Market</p>
+                    <p style="color: #8e8e93; margin-bottom: 24px; font-size: 16px;">Войдите через Telegram, чтобы начать использовать DarkWebShop</p>
                     
                     <button id="authButton" class="auth-button btn-ripple">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white">
@@ -300,20 +339,20 @@
             <div id="schoolScreen" class="hidden">
                 <h2 style="font-size: 18px; font-weight: 600; color: white; text-align: center; margin-bottom: 16px;">Выберите школу</h2>
                 <div style="space-y: 12px;">
-                    <button onclick="selectSchool('Школа №1')" class="ios-card btn-ripple" style="width: 100%; color: white; font-weight: 500; padding: 16px; border-radius: 12px; text-align: left;">
-                        🏫 Школа №1
+                    <button onclick="selectSchool('Пушкинская гимназия')" class="ios-card btn-ripple" style="width: 100%; color: white; font-weight: 500; padding: 16px; border-radius: 12px; text-align: left;">
+                        🏫 Пушкинская гимназия
                     </button>
-                    <button onclick="selectSchool('Школа №2')" class="ios-card btn-ripple" style="width: 100%; color: white; font-weight: 500; padding: 16px; border-radius: 12px; text-align: left;">
-                        🏫 Школа №2
+                    <button onclick="selectSchool('Школа № 21')" class="ios-card btn-ripple" style="width: 100%; color: white; font-weight: 500; padding: 16px; border-radius: 12px; text-align: left;">
+                        🏫 Школа № 21
                     </button>
-                    <button onclick="selectSchool('Школа №3')" class="ios-card btn-ripple" style="width: 100%; color: white; font-weight: 500; padding: 16px; border-radius: 12px; text-align: left;">
-                        🏫 Школа №3
+                    <button onclick="selectSchool('Школа № 25')" class="ios-card btn-ripple" style="width: 100%; color: white; font-weight: 500; padding: 16px; border-radius: 12px; text-align: left;">
+                        🏫 Школа № 25
                     </button>
-                    <button onclick="selectSchool('Школа №4')" class="ios-card btn-ripple" style="width: 100%; color: white; font-weight: 500; padding: 16px; border-radius: 12px; text-align: left;">
-                        🏫 Школа №4
+                    <button onclick="schoolComingSoon('Школа № 4')" class="ios-card btn-ripple" style="width: 100%; color: #8e8e93; font-weight: 500; padding: 16px; border-radius: 12px; text-align: left; opacity: 0.7;">
+                        🏫 Школа № 4 (в разработке)
                     </button>
-                    <button onclick="selectSchool('Школа №5')" class="ios-card btn-ripple" style="width: 100%; color: white; font-weight: 500; padding: 16px; border-radius: 12px; text-align: left;">
-                        🏫 Школа №5
+                    <button onclick="schoolComingSoon('Школа № 5')" class="ios-card btn-ripple" style="width: 100%; color: #8e8e93; font-weight: 500; padding: 16px; border-radius: 12px; text-align: left; opacity: 0.7;">
+                        🏫 Школа № 5 (в разработке)
                     </button>
                 </div>
             </div>
@@ -359,6 +398,7 @@
                     <img id="profileAvatar" src="https://placehold.co/64x64/1c1c1e/ffffff?text=User" alt="User avatar" class="profile-avatar" style="margin-bottom: 16px;">
                     <h3 id="profileUsername" style="font-size: 20px; font-weight: 600; color: white;">wibe_developer</h3>
                     <p id="profileRole" style="color: #8e8e93;">Продавец</p>
+                    <p id="profileCitySchool" style="color: #8e8e93; font-size: 14px;">Сыктывкар, Пушкинская гимназия</p>
                 </div>
                 
                 <div class="ios-card">
@@ -376,6 +416,7 @@
                 </div>
                 
                 <div class="ios-card">
+                    <h3 style="font-weight: 500; color: white; margin-bottom: 8px;">Статистика</h3>
                     <div style="display: flex; justify-content: space-between; text-align: center;">
                         <div>
                             <p id="totalVolume" style="font-size: 24px; font-weight: 600; color: white; margin-bottom: 4px;">0</p>
@@ -393,19 +434,46 @@
                 </div>
                 
                 <div class="ios-card">
-                    <h3 style="font-weight: 500; color: white; margin-bottom: 8px;">Достижения</h3>
-                    <div style="display: flex; gap: 8px; overflow-x: auto; padding: 8px 0;">
-                        <div style="flex-shrink: 0; width: 64px; height: 64px; background: #3a3a3c; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                            <span style="font-size: 24px;">🌟</span>
+                    <button onclick="navigateTo('settings')" style="width: 100%; color: white; font-weight: 500; padding: 12px 0; background: none; text-align: center;">⚙️ Настройки</button>
+                </div>
+            </div>
+
+            <!-- Settings Screen -->
+            <div id="settingsScreen" class="hidden">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <h2 style="font-size: 18px; font-weight: 600; color: white;">Настройки</h2>
+                    <button onclick="navigateTo('profile')" style="color: #8e8e93; padding: 8px 12px; border-radius: 12px; background: #2c2c2e;">Назад</button>
+                </div>
+                
+                <div class="ios-card">
+                    <h3 style="font-weight: 500; color: white; margin-bottom: 16px;">Учетная запись</h3>
+                    <div style="space-y: 16px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="color: #8e8e93;">Темная тема</span>
+                            <label class="switch">
+                                <input type="checkbox" id="themeToggle" checked>
+                                <span class="slider"></span>
+                            </label>
                         </div>
-                        <div style="flex-shrink: 0; width: 64px; height: 64px; background: #3a3a3c; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                            <span style="font-size: 24px;">🥉</span>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="color: #8e8e93;">Язык</span>
+                            <select id="languageSelect" style="background: transparent; color: white; border: none;">
+                                <option value="ru">Русский</option>
+                                <option value="en">English</option>
+                            </select>
                         </div>
-                        <div style="flex-shrink: 0; width: 64px; height: 64px; background: #3a3a3c; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                            <span style="font-size: 24px;">🥈</span>
-                        </div>
-                        <div style="flex-shrink: 0; width: 64px; height: 64px; background: #3a3a3c; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                            <span style="font-size: 24px;">🥇</span>
+                    </div>
+                </div>
+                
+                <div class="ios-card">
+                    <h3 style="font-weight: 500; color: white; margin-bottom: 16px;">Приватность</h3>
+                    <div style="space-y: 16px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="color: #8e8e93;">Уведомления</span>
+                            <label class="switch">
+                                <input type="checkbox" checked>
+                                <span class="slider"></span>
+                            </label>
                         </div>
                     </div>
                 </div>
@@ -480,18 +548,36 @@
                     <!-- Seller profile will be inserted here -->
                 </div>
             </div>
+
+            <!-- Admin Panel -->
+            <div id="adminPanel" class="hidden admin-panel">
+                <div class="admin-header">
+                    <h2 style="font-size: 18px; font-weight: 600; color: white;">Панель администратора</h2>
+                    <button onclick="closeAdminPanel()" style="color: #0a84ff; font-weight: 500;">Закрыть</button>
+                </div>
+                
+                <div class="admin-tabs">
+                    <div onclick="showAdminTab('moderation')" class="admin-tab active">Модерация</div>
+                    <div onclick="showAdminTab('users')" class="admin-tab">Пользователи</div>
+                    <div onclick="showAdminTab('settings')" class="admin-tab">Настройки</div>
+                </div>
+                
+                <div id="adminContent" style="flex: 1; overflow-y: auto;">
+                    <!-- Content will be inserted here -->
+                </div>
+            </div>
         </div>
 
         <!-- Navigation Bar -->
         <div id="navBar" class="tab-bar">
-            <div style="display: flex;">
+            <div style="display: flex; max-width: 414px; margin: 0 auto;">
                 <div onclick="navigateTo('home')" class="nav-item active">
                     <i>🛍️</i>
                     <span>Товары</span>
                 </div>
                 <div onclick="navigateTo('purchases')" class="nav-item">
-                    <i>📦</i>
-                    <span>Покупки</span>
+                    <i id="actionButtonIcon">🛒</i>
+                    <span id="actionButtonText">Купить</span>
                 </div>
                 <div onclick="navigateTo('profile')" class="nav-item">
                     <i>👤</i>
@@ -514,6 +600,7 @@
         let products = [];
         let applications = [];
         let purchases = [];
+        let users = [];
         let userStats = {
             level: 1,
             xp: 0,
@@ -521,6 +608,8 @@
             totalPurchased: 0,
             totalSold: 0
         };
+        let isAdmin = false;
+        let isModerator = false;
 
         // Initialize the app
         document.addEventListener('DOMContentLoaded', function() {
@@ -541,12 +630,26 @@
             // Check for saved user data
             const savedUser = localStorage.getItem('currentUser');
             const savedStats = localStorage.getItem('userStats');
+            const savedCity = localStorage.getItem('userCity');
+            const savedSchool = localStorage.getItem('userSchool');
             
             if (savedUser) {
                 currentUser = JSON.parse(savedUser);
                 if (savedStats) {
                     userStats = JSON.parse(savedStats);
                 }
+                if (savedCity) {
+                    currentCity = savedCity;
+                }
+                if (savedSchool) {
+                    currentSchool = savedSchool;
+                }
+                
+                // Check if user is admin or moderator
+                if (currentUser.username === 'Ggdhdhdgxv') {
+                    isAdmin = true;
+                }
+                
                 showMainApp();
             } else {
                 // Show loading screen briefly, then show auth screen
@@ -562,9 +665,9 @@
             if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
                 currentUser = tg.initDataUnsafe.user;
                 
-                // Check if this user is admin (wibe_developer)
-                if (currentUser.username === 'wibe_developer') {
-                    currentUser.role = 'admin';
+                // Check if this user is admin
+                if (currentUser.username === 'Ggdhdhdgxv') {
+                    isAdmin = true;
                 }
                 
                 // Save user data
@@ -584,8 +687,18 @@
             document.getElementById('loadingScreen').style.display = 'none';
             document.getElementById('authScreen').classList.add('hidden');
             document.getElementById('navBar').style.display = 'block';
-            document.getElementById('cityScreen').classList.remove('hidden');
-            currentScreen = 'city';
+            
+            // Show city selection if not already selected
+            if (!currentCity) {
+                document.getElementById('cityScreen').classList.remove('hidden');
+                currentScreen = 'city';
+            } else if (!currentSchool) {
+                document.getElementById('schoolScreen').classList.remove('hidden');
+                currentScreen = 'school';
+            } else {
+                document.getElementById('roleScreen').classList.remove('hidden');
+                currentScreen = 'role';
+            }
             
             // Update profile
             updateProfile();
@@ -599,11 +712,26 @@
             const avatar = document.getElementById('profileAvatar');
             const username = document.getElementById('profileUsername');
             const role = document.getElementById('profileRole');
+            const citySchool = document.getElementById('profileCitySchool');
             
-            if (avatar && username && role) {
+            if (avatar && username && role && citySchool) {
                 avatar.src = currentUser.photo_url || 'https://placehold.co/64x64/1c1c1e/ffffff?text=User';
                 username.textContent = currentUser.username ? `@${currentUser.username}` : 'Пользователь';
-                role.textContent = currentUserRole === 'buyer' ? 'Покупатель' : 'Продавец';
+                
+                // Set role based on user status
+                if (currentUser.username === 'Ggdhdhdgxv') {
+                    role.textContent = 'Администратор';
+                } else {
+                    role.textContent = currentUserRole === 'buyer' ? 'Покупатель' : 'Продавец';
+                }
+                
+                // Update city and school info
+                if (currentCity && currentSchool) {
+                    citySchool.textContent = `${currentCity}, ${currentSchool}`;
+                    citySchool.style.display = 'block';
+                } else {
+                    citySchool.style.display = 'none';
+                }
             }
             
             // Update stats
@@ -620,11 +748,26 @@
                 purchased.textContent = userStats.totalPurchased;
                 sold.textContent = userStats.totalSold;
             }
+            
+            // Update action button based on role
+            const actionButtonIcon = document.getElementById('actionButtonIcon');
+            const actionButtonText = document.getElementById('actionButtonText');
+            
+            if (actionButtonIcon && actionButtonText) {
+                if (currentUserRole === 'seller') {
+                    actionButtonIcon.textContent = '📸';
+                    actionButtonText.textContent = 'Товары';
+                } else {
+                    actionButtonIcon.textContent = '🛒';
+                    actionButtonText.textContent = 'Купить';
+                }
+            }
         }
 
         // City selection
         function selectCity(city) {
             currentCity = city;
+            localStorage.setItem('userCity', city);
             document.getElementById('cityScreen').classList.add('hidden');
             document.getElementById('schoolScreen').classList.remove('hidden');
             currentScreen = 'school';
@@ -637,9 +780,14 @@
         // School selection
         function selectSchool(school) {
             currentSchool = school;
+            localStorage.setItem('userSchool', school);
             document.getElementById('schoolScreen').classList.add('hidden');
             document.getElementById('roleScreen').classList.remove('hidden');
             currentScreen = 'role';
+        }
+
+        function schoolComingSoon(school) {
+            alert('Эта школа пока недоступна. Следите за обновлениями!');
         }
 
         // Role selection
@@ -652,11 +800,17 @@
         // Navigation functions
         function navigateTo(screen) {
             // Hide all screens
-            const screens = ['homeScreen', 'purchasesScreen', 'profileScreen', 'addProductForm', 'productDetail', 'sellerProfileView'];
+            const screens = ['homeScreen', 'purchasesScreen', 'profileScreen', 'addProductForm', 'productDetail', 'sellerProfileView', 'settingsScreen'];
             screens.forEach(screenId => {
                 const element = document.getElementById(screenId);
                 if (element) element.classList.add('hidden');
             });
+            
+            // Hide admin panel if open
+            const adminPanel = document.getElementById('adminPanel');
+            if (adminPanel && !adminPanel.classList.contains('hidden')) {
+                adminPanel.classList.add('hidden');
+            }
             
             // Update navigation bar
             const navItems = document.querySelectorAll('.nav-item');
@@ -677,6 +831,8 @@
                 } else if (screen === 'profile') {
                     document.querySelector('.nav-item:nth-child(3)').classList.add('active');
                     updateProfile();
+                } else if (screen === 'settings') {
+                    document.getElementById('settingsScreen').classList.remove('hidden');
                 }
                 currentScreen = screen;
             }
@@ -699,14 +855,23 @@
             if (confirm('Вы действительно хотите выйти из аккаунта?')) {
                 // Clear user data
                 currentUser = null;
+                currentCity = '';
+                currentSchool = '';
+                currentUserRole = 'buyer';
+                isAdmin = false;
+                isModerator = false;
+                
+                // Clear localStorage
                 localStorage.removeItem('currentUser');
                 localStorage.removeItem('userStats');
+                localStorage.removeItem('userCity');
+                localStorage.removeItem('userSchool');
                 
                 // Hide nav bar
                 document.getElementById('navBar').style.display = 'none';
                 
                 // Show auth screen
-                const screens = ['homeScreen', 'purchasesScreen', 'profileScreen', 'addProductForm', 'productDetail', 'sellerProfileView', 'cityScreen', 'schoolScreen', 'roleScreen'];
+                const screens = ['homeScreen', 'purchasesScreen', 'profileScreen', 'addProductForm', 'productDetail', 'sellerProfileView', 'cityScreen', 'schoolScreen', 'roleScreen', 'settingsScreen'];
                 screens.forEach(screenId => {
                     const element = document.getElementById(screenId);
                     if (element) element.classList.add('hidden');
@@ -727,35 +892,8 @@
             // Simulate API call
             setTimeout(() => {
                 // In a real app, this would be a server request
-                const mockProducts = [
-                    {
-                        id: 1,
-                        name: "Учебник по математике 10 класс",
-                        description: "Отличное состояние, без пометок. Использовался один учебный год.",
-                        category: "books",
-                        price: "500 руб.",
-                        school: "Школа №1",
-                        seller: "Алексей Иванов",
-                        sellerUsername: "@alex_ivanov",
-                        photos: ["https://placehold.co/300x200/e2e8f0/64748b?text=Учебник+по+математике"],
-                        createdAt: "2023-10-15"
-                    },
-                    {
-                        id: 2,
-                        name: "Набор гелевых ручек",
-                        description: "12 цветов, новые, в упаковке. Куплены для школы, но не понадобились.",
-                        category: "stationery",
-                        price: "300 руб.",
-                        school: "Школа №1",
-                        seller: "Мария Петрова",
-                        sellerUsername: "@masha_petrova",
-                        photos: ["https://placehold.co/300x200/e2e8f0/64748b?text=Ручки"],
-                        createdAt: "2023-10-14"
-                    }
-                ];
-                
-                const filteredProducts = mockProducts.filter(product => 
-                    product.school === currentSchool
+                const filteredProducts = products.filter(product => 
+                    product.school === currentSchool && product.status === 'approved'
                 );
                 
                 if (filteredProducts.length === 0) {
@@ -797,7 +935,7 @@
                 const addProductBtn = document.createElement('button');
                 addProductBtn.className = 'ios-button btn-ripple';
                 addProductBtn.style.cssText = 'width: 100%; font-weight: 500; padding: 16px; font-size: 16px;';
-                addProductBtn.innerHTML = '📸 Добавить товар';
+                addProductBtn.innerHTML = '📸 Выставить товар';
                 addProductBtn.onclick = function() {
                     document.getElementById('purchasesScreen').classList.add('hidden');
                     document.getElementById('addProductForm').classList.remove('hidden');
@@ -809,35 +947,7 @@
 
         // Product functions
         function viewProduct(productId) {
-            // In a real app, this would fetch the product from a server
-            const mockProducts = [
-                {
-                    id: 1,
-                    name: "Учебник по математике 10 класс",
-                    description: "Отличное состояние, без пометок. Использовался один учебный год.",
-                    category: "books",
-                    price: "500 руб.",
-                    school: "Школа №1",
-                    seller: "Алексей Иванов",
-                    sellerUsername: "@alex_ivanov",
-                    photos: ["https://placehold.co/300x200/e2e8f0/64748b?text=Учебник+по+математике"],
-                    createdAt: "2023-10-15"
-                },
-                {
-                    id: 2,
-                    name: "Набор гелевых ручек",
-                    description: "12 цветов, новые, в упаковке. Куплены для школы, но не понадобились.",
-                    category: "stationery",
-                    price: "300 руб.",
-                    school: "Школа №1",
-                    seller: "Мария Петрова",
-                    sellerUsername: "@masha_petrova",
-                    photos: ["https://placehold.co/300x200/e2e8f0/64748b?text=Ручки"],
-                    createdAt: "2023-10-14"
-                }
-            ];
-            
-            selectedProduct = mockProducts.find(p => p.id === productId);
+            selectedProduct = products.find(p => p.id === productId);
             if (!selectedProduct) return;
 
             document.getElementById('homeScreen').classList.add('hidden');
@@ -930,24 +1040,260 @@
                 return;
             }
 
-            // Simulate successful submission
-            setTimeout(() => {
-                // Reset form
-                document.getElementById('productName').value = '';
-                document.getElementById('productDescription').value = '';
-                document.getElementById('productCategory').value = 'books';
-                document.getElementById('productPhotos').value = '';
+            // Create photo URLs
+            const photoUrls = Array.from(photosInput.files).map(file => {
+                return URL.createObjectURL(file);
+            });
+            
+            // Create new application
+            const newApplication = {
+                id: applications.length + 1,
+                productName: name,
+                description: description,
+                category: category,
+                school: currentSchool,
+                sellerId: currentUser.id,
+                sellerName: `${currentUser.first_name} ${currentUser.last_name || ''}`.trim(),
+                sellerUsername: currentUser.username ? `@${currentUser.username}` : 'No username',
+                sellerPhoto: currentUser.photo_url,
+                photos: photoUrls,
+                status: "pending",
+                submittedAt: new Date().toISOString(),
+                reason: ""
+            };
+            
+            applications.push(newApplication);
+            
+            // Reset form
+            document.getElementById('productName').value = '';
+            document.getElementById('productDescription').value = '';
+            document.getElementById('productCategory').value = 'books';
+            document.getElementById('productPhotos').value = '';
+            
+            // Go back to purchases screen
+            document.getElementById('addProductForm').classList.add('hidden');
+            document.getElementById('purchasesScreen').classList.remove('hidden');
+            currentScreen = 'purchases';
+            refreshPurchases();
+            
+            // Show success message
+            alert('Ваш товар отправлен на модерацию. Спасибо!');
+        }
+
+        // Admin functions
+        function openAdminPanel() {
+            if (isAdmin) {
+                document.getElementById('adminPanel').classList.remove('hidden');
+                showAdminTab('moderation');
+            } else {
+                alert('У вас нет прав администратора');
+            }
+        }
+
+        function closeAdminPanel() {
+            document.getElementById('adminPanel').classList.add('hidden');
+        }
+
+        function showAdminTab(tab) {
+            // Update active tab
+            const tabs = document.querySelectorAll('.admin-tab');
+            tabs.forEach(t => t.classList.remove('active'));
+            document.querySelector(`.admin-tab[onclick="showAdminTab('${tab}')"]`).classList.add('active');
+            
+            // Update content
+            const content = document.getElementById('adminContent');
+            if (tab === 'moderation') {
+                content.innerHTML = `
+                    <h3 style="font-weight: 600; color: white; margin-bottom: 16px;">Модерация товаров</h3>
+                    <div id="moderationList" style="space-y: 16px;">
+                        <div style="text-align: center; padding: 32px 0; color: #8e8e93;">Загрузка заявок...</div>
+                    </div>
+                `;
                 
-                // Go back to purchases screen
-                document.getElementById('addProductForm').classList.add('hidden');
-                document.getElementById('purchasesScreen').classList.remove('hidden');
-                currentScreen = 'purchases';
-                refreshPurchases();
+                // Load moderation applications
+                setTimeout(() => {
+                    const moderationList = document.getElementById('moderationList');
+                    if (!moderationList) return;
+                    
+                    if (applications.length === 0) {
+                        moderationList.innerHTML = '<div style="text-align: center; padding: 32px 0; color: #8e8e93;">Нет заявок на модерацию</div>';
+                        return;
+                    }
+                    
+                    moderationList.innerHTML = '';
+                    applications.forEach(app => {
+                        const appCard = document.createElement('div');
+                        appCard.className = 'ios-card';
+                        appCard.innerHTML = `
+                            <div style="display: flex; justify-content: space-between; align-items-start; margin-bottom: 8px;">
+                                <h3 style="font-weight: 600; color: white;">${app.productName}</h3>
+                                <span style="background: #3a3a3c; color: #0a84ff; padding: 4px 8px; border-radius: 8px; font-size: 12px;">На модерации</span>
+                            </div>
+                            <p style="color: #8e8e93; font-size: 14px; margin-bottom: 16px;">${app.description.substring(0, 60)}${app.description.length > 60 ? '...' : ''}</p>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 16px;">
+                                <span style="color: #8e8e93; font-size: 14px;">${app.school}</span>
+                                <span style="color: #8e8e93; font-size: 14px;">${formatDate(app.submittedAt)}</span>
+                            </div>
+                            <div style="display: flex; gap: 8px;">
+                                <button onclick="rejectApplication(${app.id})" style="flex: 1; background: #ff3b30; color: white; border: none; border-radius: 8px; padding: 8px 0;">Отклонить</button>
+                                <button onclick="approveApplication(${app.id})" style="flex: 1; background: #34c759; color: white; border: none; border-radius: 8px; padding: 8px 0;">Одобрить</button>
+                            </div>
+                        `;
+                        moderationList.appendChild(appCard);
+                    });
+                }, 500);
+            } else if (tab === 'users') {
+                content.innerHTML = `
+                    <h3 style="font-weight: 600; color: white; margin-bottom: 16px;">Пользователи</h3>
+                    <div id="usersList" style="space-y: 16px;">
+                        <div style="text-align: center; padding: 32px 0; color: #8e8e93;">Загрузка пользователей...</div>
+                    </div>
+                `;
                 
-                // Show success message
-                alert('Ваш товар отправлен на модерацию. Спасибо!');
+                // Simulate user data
+                setTimeout(() => {
+                    const usersList = document.getElementById('usersList');
+                    if (!usersList) return;
+                    
+                    usersList.innerHTML = '';
+                    
+                    // Add current user and admin
+                    const userItems = [
+                        { id: 1, username: '@wibe_developer', role: 'user', status: 'active' },
+                        { id: 2, username: '@Ggdhdhdgxv', role: 'admin', status: 'active' }
+                    ];
+                    
+                    userItems.forEach(user => {
+                        const userCard = document.createElement('div');
+                        userCard.className = 'ios-card';
+                        userCard.innerHTML = `
+                            <div style="display: flex; justify-content: space-between; align-items-start; margin-bottom: 8px;">
+                                <h3 style="font-weight: 600; color: white;">${user.username}</h3>
+                                <span style="background: ${user.role === 'admin' ? '#0a84ff' : '#3a3a3c'}; color: white; padding: 4px 8px; border-radius: 8px; font-size: 12px;">${user.role === 'admin' ? 'Админ' : 'Пользователь'}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 16px;">
+                                <span style="color: #8e8e93; font-size: 14px;">Статус: ${user.status}</span>
+                                <span style="color: #8e8e93; font-size: 14px;">ID: ${user.id}</span>
+                            </div>
+                            <div style="display: flex; gap: 8px;">
+                                ${user.role !== 'admin' ? `<button onclick="makeModerator(${user.id})" style="flex: 1; background: #0a84ff; color: white; border: none; border-radius: 8px; padding: 8px 0;">Назначить модератором</button>` : ''}
+                                <button onclick="banUser(${user.id})" style="flex: 1; background: #ff3b30; color: white; border: none; border-radius: 8px; padding: 8px 0;">Забанить</button>
+                            </div>
+                        `;
+                        usersList.appendChild(userCard);
+                    });
+                }, 500);
+            } else if (tab === 'settings') {
+                content.innerHTML = `
+                    <h3 style="font-weight: 600; color: white; margin-bottom: 16px;">Настройки администратора</h3>
+                    <div class="ios-card">
+                        <h4 style="font-weight: 500; color: white; margin-bottom: 8px;">Общие настройки</h4>
+                        <div style="space-y: 16px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="color: #8e8e93;">Режим обслуживания</span>
+                                <label class="switch">
+                                    <input type="checkbox">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="color: #8e8e93;">Уведомления</span>
+                                <label class="switch">
+                                    <input type="checkbox" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ios-card">
+                        <h4 style="font-weight: 500; color: white; margin-bottom: 8px;">Безопасность</h4>
+                        <button style="width: 100%; color: #ff3b30; font-weight: 500; padding: 12px 0; background: none; text-align: center;">Сменить пароль</button>
+                    </div>
+                `;
+            }
+        }
+
+        function approveApplication(appId) {
+            const app = applications.find(a => a.id === appId);
+            if (app) {
+                // Add to products
+                products.push({
+                    id: products.length + 1,
+                    name: app.productName,
+                    description: app.description,
+                    category: app.category,
+                    price: "Договорная",
+                    school: app.school,
+                    sellerId: app.sellerId,
+                    sellerName: app.sellerName,
+                    sellerUsername: app.sellerUsername,
+                    sellerPhoto: app.sellerPhoto,
+                    photos: app.photos,
+                    status: 'approved',
+                    createdAt: app.submittedAt
+                });
                 
-            }, 500);
+                // Remove from applications
+                applications = applications.filter(a => a.id !== appId);
+                
+                // Show success
+                alert('Товар одобрен и добавлен в магазин');
+                
+                // Refresh moderation list
+                showAdminTab('moderation');
+                
+                // Refresh products for all users
+                if (document.getElementById('homeScreen').classList.contains('hidden') === false) {
+                    refreshProducts();
+                }
+            }
+        }
+
+        function rejectApplication(appId) {
+            const reason = prompt('Введите причину отклонения заявки:', '');
+            if (reason) {
+                const app = applications.find(a => a.id === appId);
+                if (app) {
+                    app.status = 'rejected';
+                    app.reason = reason;
+                    
+                    // Remove from applications
+                    applications = applications.filter(a => a.id !== appId);
+                    
+                    // Show success
+                    alert('Товар отклонен');
+                    
+                    // Refresh moderation list
+                    showAdminTab('moderation');
+                }
+            }
+        }
+
+        function makeModerator(userId) {
+            if (confirm('Вы уверены, что хотите назначить этого пользователя модератором?')) {
+                alert('Пользователь назначен модератором');
+            }
+        }
+
+        function banUser(userId) {
+            if (confirm('Вы уверены, что хотите забанить этого пользователя? Это действие нельзя отменить.')) {
+                alert('Пользователь забанен');
+            }
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+        }
+
+        // Add admin button to navigation if user is admin
+        if (isAdmin) {
+            const navBar = document.querySelector('.tab-bar div');
+            const adminButton = document.createElement('div');
+            adminButton.className = 'nav-item';
+            adminButton.innerHTML = '<i>🛡️</i><span>Админ</span>';
+            adminButton.onclick = openAdminPanel;
+            navBar.appendChild(adminButton);
         }
     </script>
 </body>

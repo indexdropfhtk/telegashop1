@@ -1,0 +1,955 @@
+```html
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>School Market</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            background-color: #1c1c1e;
+            color: #ffffff;
+            min-height: 100vh;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .slide-up {
+            animation: slideUp 0.5s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(100%); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .card-hover {
+            transition: all 0.2s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
+            color: #8e8e93;
+        }
+        
+        .nav-item.active {
+            color: #0a84ff;
+        }
+        
+        .nav-item i {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+        
+        .nav-item span {
+            font-size: 12px;
+        }
+        
+        .loading-animation {
+            width: 32px;
+            height: 32px;
+            border: 3px solid #3a3a3c;
+            border-top: 3px solid #0a84ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .profile-avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            border: 3px solid #0a84ff;
+            box-shadow: 0 4px 12px rgba(10, 132, 255, 0.2);
+        }
+        
+        .level-progress {
+            height: 6px;
+            border-radius: 3px;
+            background-color: #3a3a3c;
+            overflow: hidden;
+            margin: 8px 0;
+        }
+        
+        .level-progress-fill {
+            height: 100%;
+            background-color: #0a84ff;
+            border-radius: 3px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+        
+        .ios-button {
+            background: linear-gradient(135deg, #0a84ff 0%, #0077cc 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            display: block;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(10, 132, 255, 0.2);
+            transition: all 0.2s ease;
+        }
+        
+        .ios-button:active {
+            transform: scale(0.95);
+            box-shadow: 0 2px 8px rgba(10, 132, 255, 0.2);
+        }
+        
+        .ios-card {
+            background: #2c2c2e;
+            border: 1px solid #3a3a3c;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .divider {
+            height: 1px;
+            background-color: #3a3a3c;
+            margin: 16px 0;
+        }
+        
+        .tab-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: #1c1c1e;
+            border-top: 1px solid #3a3a3c;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            display: none;
+            z-index: 100;
+        }
+        
+        .auth-container {
+            background: #2c2c2e;
+            border: 1px solid #3a3a3c;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 20px;
+            text-align: center;
+        }
+        
+        .auth-button {
+            background: linear-gradient(135deg, #0a84ff 0%, #0077cc 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin: 20px auto;
+            max-width: 280px;
+            box-shadow: 0 4px 12px rgba(10, 132, 255, 0.2);
+            transition: all 0.2s ease;
+        }
+        
+        .auth-button:active {
+            transform: scale(0.95);
+            box-shadow: 0 2px 8px rgba(10, 132, 255, 0.2);
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        input, textarea {
+            width: 100%;
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid #3a3a3c;
+            padding: 8px 0;
+            color: white;
+            font-size: 16px;
+        }
+        
+        input:focus, textarea:focus {
+            outline: none;
+            border-bottom: 1px solid #0a84ff;
+        }
+        
+        label {
+            display: block;
+            margin: 16px 0 8px 0;
+            color: #8e8e93;
+            font-size: 14px;
+        }
+        
+        button {
+            cursor: pointer;
+            border: none;
+        }
+        
+        .btn-ripple {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-ripple::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%) scale(0);
+            opacity: 0;
+            transition: transform 0.6s, opacity 1s;
+        }
+        
+        .btn-ripple:active::after {
+            transform: translate(-50%, -50%) scale(10);
+            opacity: 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="app" style="max-width: 414px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; background-color: #1c1c1e;">
+        <!-- Header -->
+        <div id="header" style="background-color: #1c1c1e; padding: 16px;">
+            <h1 style="font-size: 18px; font-weight: 600; color: white; text-align: center;">School Market</h1>
+        </div>
+
+        <!-- Main Content -->
+        <div id="mainContent" style="flex: 1; padding: 16px; overflow-y: auto;">
+            <!-- Loading Screen -->
+            <div id="loadingScreen" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
+                <div class="loading-animation"></div>
+                <p style="color: #8e8e93; margin-top: 16px; font-size: 14px;">Загрузка...</p>
+            </div>
+
+            <!-- Auth Screen -->
+            <div id="authScreen" class="hidden">
+                <div class="auth-container">
+                    <h2 style="font-size: 20px; font-weight: 600; color: white; margin-bottom: 16px;">Добро пожаловать</h2>
+                    <p style="color: #8e8e93; margin-bottom: 24px; font-size: 16px;">Войдите через Telegram, чтобы начать использовать School Market</p>
+                    
+                    <button id="authButton" class="auth-button btn-ripple">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white">
+                            <path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm7.707 10.763-4.796 2.222 1.139 3.318c.145.425-.342.799-.716.534l-4.37-3.96-3.04 2.78c-.255.234-.67.096-.76-.248l-2.34-7.96c-.145-.49.41-.975.88-.716l8.66 4.68 3.49-3.198c.27-.245.822-.12.88.316l1.36 7.446z"/>
+                        </svg>
+                        Войти через Telegram
+                    </button>
+                    
+                    <p style="font-size: 12px; color: #8e8e93; margin-top: 16px;">После входа вы получите доступ ко всем функциям приложения</p>
+                </div>
+            </div>
+
+            <!-- City Selection Screen -->
+            <div id="cityScreen" class="hidden">
+                <h2 style="font-size: 18px; font-weight: 600; color: white; text-align: center; margin-bottom: 16px;">Выберите город</h2>
+                <div style="space-y: 12px;">
+                    <button onclick="selectCity('Сыктывкар')" class="ios-card btn-ripple" style="width: 100%; color: white; font-weight: 500; padding: 16px; border-radius: 12px; text-align: left;">
+                        🏙️ Сыктывкар
+                    </button>
+                    <button onclick="cityComingSoon('Москва')" class="ios-card btn-ripple" style="width: 100%; color: #8e8e93; font-weight: 500; padding: 16px; border-radius: 12px; text-align: left; opacity: 0.7;">
+                        🏙️ Москва (в разработке)
+                    </button>
+                    <button onclick="cityComingSoon('Санкт-Петербург')" class="ios-card btn-ripple" style="width: 100%; color: #8e8e93; font-weight: 500; padding: 16px; border-radius: 12px; text-align: left; opacity: 0.7;">
+                        🏙️ Санкт-Петербург (в разработке)
+                    </button>
+                </div>
+            </div>
+
+            <!-- School Selection Screen -->
+            <div id="schoolScreen" class="hidden">
+                <h2 style="font-size: 18px; font-weight: 600; color: white; text-align: center; margin-bottom: 16px;">Выберите школу</h2>
+                <div style="space-y: 12px;">
+                    <button onclick="selectSchool('Школа №1')" class="ios-card btn-ripple" style="width: 100%; color: white; font-weight: 500; padding: 16px; border-radius: 12px; text-align: left;">
+                        🏫 Школа №1
+                    </button>
+                    <button onclick="selectSchool('Школа №2')" class="ios-card btn-ripple" style="width: 100%; color: white; font-weight: 500; padding: 16px; border-radius: 12px; text-align: left;">
+                        🏫 Школа №2
+                    </button>
+                    <button onclick="selectSchool('Школа №3')" class="ios-card btn-ripple" style="width: 100%; color: white; font-weight: 500; padding: 16px; border-radius: 12px; text-align: left;">
+                        🏫 Школа №3
+                    </button>
+                    <button onclick="selectSchool('Школа №4')" class="ios-card btn-ripple" style="width: 100%; color: white; font-weight: 500; padding: 16px; border-radius: 12px; text-align: left;">
+                        🏫 Школа №4
+                    </button>
+                    <button onclick="selectSchool('Школа №5')" class="ios-card btn-ripple" style="width: 100%; color: white; font-weight: 500; padding: 16px; border-radius: 12px; text-align: left;">
+                        🏫 Школа №5
+                    </button>
+                </div>
+            </div>
+
+            <!-- Role Selection Screen -->
+            <div id="roleScreen" class="hidden">
+                <h2 style="font-size: 18px; font-weight: 600; color: white; text-align: center; margin-bottom: 16px;">Ваша роль</h2>
+                <div style="display: flex; gap: 12px;">
+                    <button onclick="selectRole('buyer')" class="ios-card btn-ripple" style="flex: 1; color: white; font-weight: 500; padding: 16px; border-radius: 12px; text-align: center;">
+                        🛒 Покупатель
+                    </button>
+                    <button onclick="selectRole('seller')" class="ios-card btn-ripple" style="flex: 1; color: white; font-weight: 500; padding: 16px; border-radius: 12px; text-align: center;">
+                        💼 Продавец
+                    </button>
+                </div>
+            </div>
+
+            <!-- Home Screen (Products) -->
+            <div id="homeScreen" class="hidden">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <h2 style="font-size: 18px; font-weight: 600; color: white;">Товары</h2>
+                    <div style="display: flex; gap: 8px;">
+                        <button onclick="refreshProducts()" style="color: #8e8e93; padding: 8px 12px; border-radius: 12px; background: #2c2c2e;">🔄</button>
+                    </div>
+                </div>
+                
+                <div id="productList" style="space-y: 16px;">
+                    <div style="text-align: center; padding: 32px 0; color: #8e8e93;">Загрузка товаров...</div>
+                </div>
+            </div>
+
+            <!-- Purchases Screen -->
+            <div id="purchasesScreen" class="hidden">
+                <h2 id="purchasesTitle" style="font-size: 18px; font-weight: 600; color: white; margin-bottom: 16px;">Мои покупки</h2>
+                <div id="purchasesList" style="space-y: 16px;">
+                    <div style="text-align: center; padding: 32px 0; color: #8e8e93;">Загрузка покупок...</div>
+                </div>
+            </div>
+
+            <!-- Profile Screen -->
+            <div id="profileScreen" class="hidden">
+                <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 24px;">
+                    <img id="profileAvatar" src="https://placehold.co/64x64/1c1c1e/ffffff?text=User" alt="User avatar" class="profile-avatar" style="margin-bottom: 16px;">
+                    <h3 id="profileUsername" style="font-size: 20px; font-weight: 600; color: white;">wibe_developer</h3>
+                    <p id="profileRole" style="color: #8e8e93;">Продавец</p>
+                </div>
+                
+                <div class="ios-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <span style="color: #8e8e93; font-size: 14px;">Уровень</span>
+                        <span id="profileLevel" style="color: white; font-weight: 500;">Уровень 1</span>
+                    </div>
+                    <div class="level-progress">
+                        <div id="profileProgress" class="level-progress-fill"></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-top: 4px;">
+                        <span style="font-size: 12px; color: #8e8e93;">0 / 100 XP</span>
+                        <span style="font-size: 12px; color: #8e8e93;">Уровень 2</span>
+                    </div>
+                </div>
+                
+                <div class="ios-card">
+                    <div style="display: flex; justify-content: space-between; text-align: center;">
+                        <div>
+                            <p id="totalVolume" style="font-size: 24px; font-weight: 600; color: white; margin-bottom: 4px;">0</p>
+                            <p style="font-size: 12px; color: #8e8e93;">Объем</p>
+                        </div>
+                        <div>
+                            <p id="totalPurchased" style="font-size: 24px; font-weight: 600; color: white; margin-bottom: 4px;">0</p>
+                            <p style="font-size: 12px; color: #8e8e93;">Куплено</p>
+                        </div>
+                        <div>
+                            <p id="totalSold" style="font-size: 24px; font-weight: 600; color: white; margin-bottom: 4px;">0</p>
+                            <p style="font-size: 12px; color: #8e8e93;">Продано</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="ios-card">
+                    <h3 style="font-weight: 500; color: white; margin-bottom: 8px;">Достижения</h3>
+                    <div style="display: flex; gap: 8px; overflow-x: auto; padding: 8px 0;">
+                        <div style="flex-shrink: 0; width: 64px; height: 64px; background: #3a3a3c; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                            <span style="font-size: 24px;">🌟</span>
+                        </div>
+                        <div style="flex-shrink: 0; width: 64px; height: 64px; background: #3a3a3c; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                            <span style="font-size: 24px;">🥉</span>
+                        </div>
+                        <div style="flex-shrink: 0; width: 64px; height: 64px; background: #3a3a3c; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                            <span style="font-size: 24px;">🥈</span>
+                        </div>
+                        <div style="flex-shrink: 0; width: 64px; height: 64px; background: #3a3a3c; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                            <span style="font-size: 24px;">🥇</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="ios-card">
+                    <button onclick="logout()" style="width: 100%; color: #ff3b30; font-weight: 500; padding: 12px 0; background: none; text-align: center;">Выйти из аккаунта</button>
+                </div>
+            </div>
+
+            <!-- Add Product Form -->
+            <div id="addProductForm" class="hidden">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <h2 style="font-size: 18px; font-weight: 600; color: white;">Добавить товар</h2>
+                    <button onclick="goBack()" style="color: #8e8e93; padding: 8px 12px; border-radius: 12px; background: #2c2c2e;">Назад</button>
+                </div>
+                
+                <div class="ios-card">
+                    <div style="space-y: 16px;">
+                        <div>
+                            <label>Название товара</label>
+                            <input type="text" id="productName" placeholder="Введите название">
+                        </div>
+                        
+                        <div>
+                            <label>Описание</label>
+                            <textarea id="productDescription" rows="3" placeholder="Опишите товар"></textarea>
+                        </div>
+                        
+                        <div>
+                            <label>Категория</label>
+                            <select id="productCategory" style="width: 100%; background: transparent; border: none; color: white; font-size: 16px;">
+                                <option value="books">Учебники</option>
+                                <option value="stationery">Канцелярия</option>
+                                <option value="electronics">Электроника</option>
+                                <option value="other">Другое</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label>Фотографии (минимум 1)</label>
+                            <input type="file" id="productPhotos" accept="image/*" multiple>
+                            <p style="font-size: 12px; color: #8e8e93; margin-top: 4px;">Нажмите, чтобы добавить фотографии</p>
+                        </div>
+                        
+                        <button onclick="submitProduct()" class="ios-button btn-ripple" style="margin-top: 16px;">
+                            Отправить на модерацию
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Detail View -->
+            <div id="productDetail" class="hidden">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <h2 style="font-size: 18px; font-weight: 600; color: white;">Товар</h2>
+                    <button onclick="goBack()" style="color: #8e8e93; padding: 8px 12px; border-radius: 12px; background: #2c2c2e;">Назад</button>
+                </div>
+                
+                <div id="productDetailContent" class="ios-card">
+                    <!-- Product details will be inserted here -->
+                </div>
+            </div>
+
+            <!-- Seller Profile View -->
+            <div id="sellerProfileView" class="hidden">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <h2 style="font-size: 18px; font-weight: 600; color: white;">Продавец</h2>
+                    <button onclick="goBack()" style="color: #8e8e93; padding: 8px 12px; border-radius: 12px; background: #2c2c2e;">Назад</button>
+                </div>
+                
+                <div id="sellerProfileContent" class="ios-card">
+                    <!-- Seller profile will be inserted here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Bar -->
+        <div id="navBar" class="tab-bar">
+            <div style="display: flex;">
+                <div onclick="navigateTo('home')" class="nav-item active">
+                    <i>🛍️</i>
+                    <span>Товары</span>
+                </div>
+                <div onclick="navigateTo('purchases')" class="nav-item">
+                    <i>📦</i>
+                    <span>Покупки</span>
+                </div>
+                <div onclick="navigateTo('profile')" class="nav-item">
+                    <i>👤</i>
+                    <span>Профиль</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Telegram WebApp initialization
+        const tg = window.Telegram?.WebApp;
+        let currentUser = null;
+        let currentCity = '';
+        let currentSchool = '';
+        let currentUserRole = 'buyer';
+        let currentScreen = 'auth';
+        let selectedProduct = null;
+        let selectedSeller = null;
+        let products = [];
+        let applications = [];
+        let purchases = [];
+        let userStats = {
+            level: 1,
+            xp: 0,
+            totalVolume: 0,
+            totalPurchased: 0,
+            totalSold: 0
+        };
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            // Setup auth button
+            const authButton = document.getElementById('authButton');
+            if (authButton) {
+                authButton.addEventListener('click', function() {
+                    authenticateUser();
+                });
+            }
+
+            // Initialize Telegram WebApp
+            if (tg) {
+                tg.ready();
+                tg.expand();
+            }
+            
+            // Check for saved user data
+            const savedUser = localStorage.getItem('currentUser');
+            const savedStats = localStorage.getItem('userStats');
+            
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                if (savedStats) {
+                    userStats = JSON.parse(savedStats);
+                }
+                showMainApp();
+            } else {
+                // Show loading screen briefly, then show auth screen
+                setTimeout(() => {
+                    document.getElementById('loadingScreen').style.display = 'none';
+                    document.getElementById('authScreen').classList.remove('hidden');
+                }, 1000);
+            }
+        });
+
+        // Authentication function
+        function authenticateUser() {
+            if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                currentUser = tg.initDataUnsafe.user;
+                
+                // Check if this user is admin (wibe_developer)
+                if (currentUser.username === 'wibe_developer') {
+                    currentUser.role = 'admin';
+                }
+                
+                // Save user data
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                localStorage.setItem('userStats', JSON.stringify(userStats));
+                
+                // Show main app
+                showMainApp();
+            } else {
+                // Show error message
+                alert('Не удалось авторизоваться через Telegram. Пожалуйста, откройте приложение через Telegram.');
+            }
+        }
+
+        // Show main app after authentication
+        function showMainApp() {
+            document.getElementById('loadingScreen').style.display = 'none';
+            document.getElementById('authScreen').classList.add('hidden');
+            document.getElementById('navBar').style.display = 'block';
+            document.getElementById('cityScreen').classList.remove('hidden');
+            currentScreen = 'city';
+            
+            // Update profile
+            updateProfile();
+        }
+
+        // Update profile with user data
+        function updateProfile() {
+            if (!currentUser) return;
+            
+            // Update profile info
+            const avatar = document.getElementById('profileAvatar');
+            const username = document.getElementById('profileUsername');
+            const role = document.getElementById('profileRole');
+            
+            if (avatar && username && role) {
+                avatar.src = currentUser.photo_url || 'https://placehold.co/64x64/1c1c1e/ffffff?text=User';
+                username.textContent = currentUser.username ? `@${currentUser.username}` : 'Пользователь';
+                role.textContent = currentUserRole === 'buyer' ? 'Покупатель' : 'Продавец';
+            }
+            
+            // Update stats
+            const level = document.getElementById('profileLevel');
+            const progress = document.getElementById('profileProgress');
+            const volume = document.getElementById('totalVolume');
+            const purchased = document.getElementById('totalPurchased');
+            const sold = document.getElementById('totalSold');
+            
+            if (level && progress && volume && purchased && sold) {
+                level.textContent = `Уровень ${userStats.level}`;
+                progress.style.width = `${(userStats.xp % 100)}%`;
+                volume.textContent = userStats.totalVolume;
+                purchased.textContent = userStats.totalPurchased;
+                sold.textContent = userStats.totalSold;
+            }
+        }
+
+        // City selection
+        function selectCity(city) {
+            currentCity = city;
+            document.getElementById('cityScreen').classList.add('hidden');
+            document.getElementById('schoolScreen').classList.remove('hidden');
+            currentScreen = 'school';
+        }
+
+        function cityComingSoon(city) {
+            alert('Этот город пока недоступен. Следите за обновлениями!');
+        }
+
+        // School selection
+        function selectSchool(school) {
+            currentSchool = school;
+            document.getElementById('schoolScreen').classList.add('hidden');
+            document.getElementById('roleScreen').classList.remove('hidden');
+            currentScreen = 'role';
+        }
+
+        // Role selection
+        function selectRole(role) {
+            currentUserRole = role;
+            document.getElementById('roleScreen').classList.add('hidden');
+            navigateTo('home');
+        }
+
+        // Navigation functions
+        function navigateTo(screen) {
+            // Hide all screens
+            const screens = ['homeScreen', 'purchasesScreen', 'profileScreen', 'addProductForm', 'productDetail', 'sellerProfileView'];
+            screens.forEach(screenId => {
+                const element = document.getElementById(screenId);
+                if (element) element.classList.add('hidden');
+            });
+            
+            // Update navigation bar
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Show selected screen
+            const screenElement = document.getElementById(screen + 'Screen');
+            if (screenElement) {
+                screenElement.classList.remove('hidden');
+                if (screen === 'home') {
+                    document.querySelector('.nav-item:nth-child(1)').classList.add('active');
+                    refreshProducts();
+                } else if (screen === 'purchases') {
+                    document.querySelector('.nav-item:nth-child(2)').classList.add('active');
+                    refreshPurchases();
+                } else if (screen === 'profile') {
+                    document.querySelector('.nav-item:nth-child(3)').classList.add('active');
+                    updateProfile();
+                }
+                currentScreen = screen;
+            }
+        }
+
+        function goBack() {
+            if (currentScreen === 'productDetail') {
+                navigateTo('home');
+            } else if (currentScreen === 'sellerProfileView') {
+                navigateTo('home');
+            } else if (currentScreen === 'addProductForm') {
+                navigateTo('purchases');
+            } else {
+                alert('Вы в главном меню приложения');
+            }
+        }
+
+        // Logout function
+        function logout() {
+            if (confirm('Вы действительно хотите выйти из аккаунта?')) {
+                // Clear user data
+                currentUser = null;
+                localStorage.removeItem('currentUser');
+                localStorage.removeItem('userStats');
+                
+                // Hide nav bar
+                document.getElementById('navBar').style.display = 'none';
+                
+                // Show auth screen
+                const screens = ['homeScreen', 'purchasesScreen', 'profileScreen', 'addProductForm', 'productDetail', 'sellerProfileView', 'cityScreen', 'schoolScreen', 'roleScreen'];
+                screens.forEach(screenId => {
+                    const element = document.getElementById(screenId);
+                    if (element) element.classList.add('hidden');
+                });
+                
+                document.getElementById('authScreen').classList.remove('hidden');
+                currentScreen = 'auth';
+            }
+        }
+
+        // Refresh functions
+        function refreshProducts() {
+            const productList = document.getElementById('productList');
+            if (!productList) return;
+            
+            productList.innerHTML = '<div style="text-align: center; padding: 32px 0; color: #8e8e93;">Загрузка товаров...</div>';
+            
+            // Simulate API call
+            setTimeout(() => {
+                // In a real app, this would be a server request
+                const mockProducts = [
+                    {
+                        id: 1,
+                        name: "Учебник по математике 10 класс",
+                        description: "Отличное состояние, без пометок. Использовался один учебный год.",
+                        category: "books",
+                        price: "500 руб.",
+                        school: "Школа №1",
+                        seller: "Алексей Иванов",
+                        sellerUsername: "@alex_ivanov",
+                        photos: ["https://placehold.co/300x200/e2e8f0/64748b?text=Учебник+по+математике"],
+                        createdAt: "2023-10-15"
+                    },
+                    {
+                        id: 2,
+                        name: "Набор гелевых ручек",
+                        description: "12 цветов, новые, в упаковке. Куплены для школы, но не понадобились.",
+                        category: "stationery",
+                        price: "300 руб.",
+                        school: "Школа №1",
+                        seller: "Мария Петрова",
+                        sellerUsername: "@masha_petrova",
+                        photos: ["https://placehold.co/300x200/e2e8f0/64748b?text=Ручки"],
+                        createdAt: "2023-10-14"
+                    }
+                ];
+                
+                const filteredProducts = mockProducts.filter(product => 
+                    product.school === currentSchool
+                );
+                
+                if (filteredProducts.length === 0) {
+                    productList.innerHTML = '<div style="text-align: center; padding: 32px 0; color: #8e8e93;">Нет доступных товаров</div>';
+                    return;
+                }
+
+                productList.innerHTML = '';
+                filteredProducts.forEach(product => {
+                    const productCard = document.createElement('div');
+                    productCard.className = 'ios-card card-hover';
+                    productCard.innerHTML = `
+                        <img src="${product.photos[0]}" alt="${product.name}" style="width: 100%; height: 192px; object-fit: cover; border-radius: 12px;">
+                        <div style="margin-top: 12px;">
+                            <h3 style="font-weight: 600; color: white; margin-bottom: 8px;">${product.name}</h3>
+                            <p style="color: #8e8e93; font-size: 14px; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${product.description}</p>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="color: #8e8e93; font-size: 12px;">📚 Учебники</span>
+                                <span style="font-weight: 600; color: white;">${product.price}</span>
+                            </div>
+                            <button onclick="viewProduct(${product.id})" class="ios-button btn-ripple" style="margin-top: 12px; padding: 10px 0;">
+                                Подробнее
+                            </button>
+                        </div>
+                    `;
+                    productList.appendChild(productCard);
+                });
+            }, 500);
+        }
+
+        function refreshPurchases() {
+            const purchasesList = document.getElementById('purchasesList');
+            if (!purchasesList) return;
+            
+            if (currentUserRole === 'buyer') {
+                purchasesList.innerHTML = '<div style="text-align: center; padding: 32px 0; color: #8e8e93;">У вас пока нет покупок</div>';
+            } else {
+                purchasesList.innerHTML = '';
+                const addProductBtn = document.createElement('button');
+                addProductBtn.className = 'ios-button btn-ripple';
+                addProductBtn.style.cssText = 'width: 100%; font-weight: 500; padding: 16px; font-size: 16px;';
+                addProductBtn.innerHTML = '📸 Добавить товар';
+                addProductBtn.onclick = function() {
+                    document.getElementById('purchasesScreen').classList.add('hidden');
+                    document.getElementById('addProductForm').classList.remove('hidden');
+                    currentScreen = 'addProductForm';
+                };
+                purchasesList.appendChild(addProductBtn);
+            }
+        }
+
+        // Product functions
+        function viewProduct(productId) {
+            // In a real app, this would fetch the product from a server
+            const mockProducts = [
+                {
+                    id: 1,
+                    name: "Учебник по математике 10 класс",
+                    description: "Отличное состояние, без пометок. Использовался один учебный год.",
+                    category: "books",
+                    price: "500 руб.",
+                    school: "Школа №1",
+                    seller: "Алексей Иванов",
+                    sellerUsername: "@alex_ivanov",
+                    photos: ["https://placehold.co/300x200/e2e8f0/64748b?text=Учебник+по+математике"],
+                    createdAt: "2023-10-15"
+                },
+                {
+                    id: 2,
+                    name: "Набор гелевых ручек",
+                    description: "12 цветов, новые, в упаковке. Куплены для школы, но не понадобились.",
+                    category: "stationery",
+                    price: "300 руб.",
+                    school: "Школа №1",
+                    seller: "Мария Петрова",
+                    sellerUsername: "@masha_petrova",
+                    photos: ["https://placehold.co/300x200/e2e8f0/64748b?text=Ручки"],
+                    createdAt: "2023-10-14"
+                }
+            ];
+            
+            selectedProduct = mockProducts.find(p => p.id === productId);
+            if (!selectedProduct) return;
+
+            document.getElementById('homeScreen').classList.add('hidden');
+            document.getElementById('productDetail').classList.remove('hidden');
+            currentScreen = 'productDetail';
+            
+            const content = document.getElementById('productDetailContent');
+            if (!content) return;
+            
+            content.innerHTML = `
+                <div style="position: relative;">
+                    <img src="${selectedProduct.photos[0]}" alt="${selectedProduct.name}" style="width: 100%; height: 256px; object-fit: cover; border-radius: 12px;">
+                </div>
+                <div style="padding: 16px;">
+                    <h3 style="font-weight: 700; font-size: 20px; color: white; margin-bottom: 16px;">${selectedProduct.name}</h3>
+                    <p style="color: #8e8e93; margin-bottom: 16px;">${selectedProduct.description}</p>
+                    <div class="ios-card" style="padding: 12px; margin-bottom: 16px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <span style="color: #8e8e93;">Цена:</span>
+                            <span style="font-weight: 600; color: white;">${selectedProduct.price}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <span style="color: #8e8e93;">Категория:</span>
+                            <span>📚 Учебники</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: #8e8e93;">Продавец:</span>
+                            <span style="font-weight: 500;">${selectedProduct.seller}</span>
+                        </div>
+                    </div>
+                    <h4 style="font-weight: 600; color: white; margin-bottom: 12px;">Способ получения:</h4>
+                    <div style="space-y: 8px; margin-bottom: 16px;">
+                        <label style="display: flex; align-items: center;">
+                            <input type="radio" name="delivery" value="personal" style="margin-right: 8px;" checked>
+                            Личная встреча
+                        </label>
+                        <label style="display: flex; align-items: center;">
+                            <input type="radio" name="delivery" value="locker" style="margin-right: 8px;">
+                            Тайник
+                        </label>
+                    </div>
+                    <button onclick="contactSeller()" class="ios-button btn-ripple">
+                        Связаться с продавцом
+                    </button>
+                </div>
+            `;
+        }
+
+        function contactSeller() {
+            if (!selectedProduct || !currentUser) {
+                alert('Ошибка: не удалось получить данные');
+                return;
+            }
+
+            selectedSeller = {
+                id: selectedProduct.sellerId,
+                name: selectedProduct.seller,
+                username: selectedProduct.sellerUsername,
+                photo: 'https://placehold.co/64x64/1c1c1e/ffffff?text=User'
+            };
+            
+            document.getElementById('productDetail').classList.add('hidden');
+            document.getElementById('sellerProfileView').classList.remove('hidden');
+            currentScreen = 'sellerProfileView';
+            
+            const content = document.getElementById('sellerProfileContent');
+            if (!content) return;
+            
+            content.innerHTML = `
+                <div style="padding: 16px; text-align: center;">
+                    <img src="${selectedSeller.photo}" alt="${selectedSeller.name}" class="profile-avatar" style="margin-bottom: 16px; border-width: 2px;">
+                    <h3 style="font-weight: 700; font-size: 20px; color: white; margin-bottom: 8px;">${selectedSeller.name}</h3>
+                    <p style="color: #8e8e93; margin-bottom: 16px;">${selectedSeller.username}</p>
+                    <p style="color: #8e8e93; margin-bottom: 24px; font-size: 14px;">Я студент школы ${currentSchool}. Готов(а) помочь с любыми вопросами по товару.</p>
+                    <a href="https://t.me/${selectedSeller.username.replace('@', '')}" class="ios-button btn-ripple">
+                        💬 Связаться
+                    </a>
+                </div>
+            `;
+        }
+
+        function submitProduct() {
+            const name = document.getElementById('productName').value;
+            const description = document.getElementById('productDescription').value;
+            const category = document.getElementById('productCategory').value;
+            const photosInput = document.getElementById('productPhotos');
+            
+            if (!name || !description || !photosInput.files || photosInput.files.length === 0) {
+                alert('Пожалуйста, заполните все поля и добавьте хотя бы одну фотографию');
+                return;
+            }
+
+            // Simulate successful submission
+            setTimeout(() => {
+                // Reset form
+                document.getElementById('productName').value = '';
+                document.getElementById('productDescription').value = '';
+                document.getElementById('productCategory').value = 'books';
+                document.getElementById('productPhotos').value = '';
+                
+                // Go back to purchases screen
+                document.getElementById('addProductForm').classList.add('hidden');
+                document.getElementById('purchasesScreen').classList.remove('hidden');
+                currentScreen = 'purchases';
+                refreshPurchases();
+                
+                // Show success message
+                alert('Ваш товар отправлен на модерацию. Спасибо!');
+                
+            }, 500);
+        }
+    </script>
+</body>
+</html>
+```

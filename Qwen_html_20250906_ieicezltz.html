@@ -248,7 +248,7 @@
             opacity: 0;
         }
         
-        .admin-panel {
+        .moderation-panel {
             position: fixed;
             top: 0;
             left: 0;
@@ -260,7 +260,7 @@
             overflow-y: auto;
         }
         
-        .admin-header {
+        .moderation-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -269,19 +269,19 @@
             margin-bottom: 16px;
         }
         
-        .admin-tabs {
+        .moderation-tabs {
             display: flex;
             border-bottom: 1px solid #3a3a3c;
             margin-bottom: 16px;
         }
         
-        .admin-tab {
+        .moderation-tab {
             padding: 8px 16px;
             color: #8e8e93;
             border-bottom: 2px solid transparent;
         }
         
-        .admin-tab.active {
+        .moderation-tab.active {
             color: #0a84ff;
             border-bottom: 2px solid #0a84ff;
         }
@@ -549,20 +549,19 @@
                 </div>
             </div>
 
-            <!-- Admin Panel -->
-            <div id="adminPanel" class="hidden admin-panel">
-                <div class="admin-header">
-                    <h2 style="font-size: 18px; font-weight: 600; color: white;">Панель администратора</h2>
-                    <button onclick="closeAdminPanel()" style="color: #0a84ff; font-weight: 500;">Закрыть</button>
+            <!-- Moderation Panel -->
+            <div id="moderationPanel" class="hidden moderation-panel">
+                <div class="moderation-header">
+                    <h2 style="font-size: 18px; font-weight: 600; color: white;">Модерация</h2>
+                    <button onclick="closeModerationPanel()" style="color: #0a84ff; font-weight: 500;">Закрыть</button>
                 </div>
                 
-                <div class="admin-tabs">
-                    <div onclick="showAdminTab('moderation')" class="admin-tab active">Модерация</div>
-                    <div onclick="showAdminTab('users')" class="admin-tab">Пользователи</div>
-                    <div onclick="showAdminTab('settings')" class="admin-tab">Настройки</div>
+                <div class="moderation-tabs">
+                    <div onclick="showModerationTab('applications')" class="moderation-tab active">Заявки</div>
+                    <div onclick="showModerationTab('users')" class="moderation-tab">Пользователи</div>
                 </div>
                 
-                <div id="adminContent" style="flex: 1; overflow-y: auto;">
+                <div id="moderationContent" style="flex: 1; overflow-y: auto;">
                     <!-- Content will be inserted here -->
                 </div>
             </div>
@@ -575,7 +574,11 @@
                     <i>🛍️</i>
                     <span>Товары</span>
                 </div>
-                <div onclick="navigateTo('purchases')" class="nav-item">
+                <div onclick="openModerationPanel()" class="nav-item" id="moderationButton" style="display: none;">
+                    <i>🛡️</i>
+                    <span>Модерация</span>
+                </div>
+                <div onclick="navigateTo('purchases')" class="nav-item" id="actionButton">
                     <i id="actionButtonIcon">🛒</i>
                     <span id="actionButtonText">Купить</span>
                 </div>
@@ -601,6 +604,7 @@
         let applications = [];
         let purchases = [];
         let users = [];
+        let moderators = [];
         let userStats = {
             level: 1,
             xp: 0,
@@ -632,6 +636,8 @@
             const savedStats = localStorage.getItem('userStats');
             const savedCity = localStorage.getItem('userCity');
             const savedSchool = localStorage.getItem('userSchool');
+            const savedIsAdmin = localStorage.getItem('isAdmin');
+            const savedIsModerator = localStorage.getItem('isModerator');
             
             if (savedUser) {
                 currentUser = JSON.parse(savedUser);
@@ -643,6 +649,12 @@
                 }
                 if (savedSchool) {
                     currentSchool = savedSchool;
+                }
+                if (savedIsAdmin) {
+                    isAdmin = JSON.parse(savedIsAdmin);
+                }
+                if (savedIsModerator) {
+                    isModerator = JSON.parse(savedIsModerator);
                 }
                 
                 // Check if user is admin or moderator
@@ -673,6 +685,8 @@
                 // Save user data
                 localStorage.setItem('currentUser', JSON.stringify(currentUser));
                 localStorage.setItem('userStats', JSON.stringify(userStats));
+                localStorage.setItem('isAdmin', JSON.stringify(isAdmin));
+                localStorage.setItem('isModerator', JSON.stringify(isModerator));
                 
                 // Show main app
                 showMainApp();
@@ -700,7 +714,7 @@
                 currentScreen = 'role';
             }
             
-            // Update profile
+            // Update profile and navigation
             updateProfile();
         }
 
@@ -721,6 +735,8 @@
                 // Set role based on user status
                 if (currentUser.username === 'Ggdhdhdgxv') {
                     role.textContent = 'Администратор';
+                } else if (isModerator) {
+                    role.textContent = 'Модератор';
                 } else {
                     role.textContent = currentUserRole === 'buyer' ? 'Покупатель' : 'Продавец';
                 }
@@ -750,16 +766,26 @@
             }
             
             // Update action button based on role
+            const actionButton = document.getElementById('actionButton');
             const actionButtonIcon = document.getElementById('actionButtonIcon');
             const actionButtonText = document.getElementById('actionButtonText');
+            const moderationButton = document.getElementById('moderationButton');
             
-            if (actionButtonIcon && actionButtonText) {
-                if (currentUserRole === 'seller') {
-                    actionButtonIcon.textContent = '📸';
-                    actionButtonText.textContent = 'Товары';
+            if (actionButton && actionButtonIcon && actionButtonText && moderationButton) {
+                if (isAdmin || isModerator) {
+                    actionButton.style.display = 'none';
+                    moderationButton.style.display = 'flex';
                 } else {
-                    actionButtonIcon.textContent = '🛒';
-                    actionButtonText.textContent = 'Купить';
+                    actionButton.style.display = 'flex';
+                    moderationButton.style.display = 'none';
+                    
+                    if (currentUserRole === 'seller') {
+                        actionButtonIcon.textContent = '📸';
+                        actionButtonText.textContent = 'Товары';
+                    } else {
+                        actionButtonIcon.textContent = '🛒';
+                        actionButtonText.textContent = 'Купить';
+                    }
                 }
             }
         }
@@ -806,10 +832,10 @@
                 if (element) element.classList.add('hidden');
             });
             
-            // Hide admin panel if open
-            const adminPanel = document.getElementById('adminPanel');
-            if (adminPanel && !adminPanel.classList.contains('hidden')) {
-                adminPanel.classList.add('hidden');
+            // Hide moderation panel if open
+            const moderationPanel = document.getElementById('moderationPanel');
+            if (moderationPanel && !moderationPanel.classList.contains('hidden')) {
+                moderationPanel.classList.add('hidden');
             }
             
             // Update navigation bar
@@ -826,8 +852,11 @@
                     document.querySelector('.nav-item:nth-child(1)').classList.add('active');
                     refreshProducts();
                 } else if (screen === 'purchases') {
-                    document.querySelector('.nav-item:nth-child(2)').classList.add('active');
-                    refreshPurchases();
+                    // Find the correct action button based on role
+                    const actionBtn = document.getElementById('actionButton');
+                    if (actionBtn) {
+                        actionBtn.classList.add('active');
+                    }
                 } else if (screen === 'profile') {
                     document.querySelector('.nav-item:nth-child(3)').classList.add('active');
                     updateProfile();
@@ -866,6 +895,8 @@
                 localStorage.removeItem('userStats');
                 localStorage.removeItem('userCity');
                 localStorage.removeItem('userSchool');
+                localStorage.removeItem('isAdmin');
+                localStorage.removeItem('isModerator');
                 
                 // Hide nav bar
                 document.getElementById('navBar').style.display = 'none';
@@ -1080,47 +1111,47 @@
             alert('Ваш товар отправлен на модерацию. Спасибо!');
         }
 
-        // Admin functions
-        function openAdminPanel() {
-            if (isAdmin) {
-                document.getElementById('adminPanel').classList.remove('hidden');
-                showAdminTab('moderation');
+        // Moderation functions
+        function openModerationPanel() {
+            if (isAdmin || isModerator) {
+                document.getElementById('moderationPanel').classList.remove('hidden');
+                showModerationTab('applications');
             } else {
-                alert('У вас нет прав администратора');
+                alert('У вас нет прав модератора');
             }
         }
 
-        function closeAdminPanel() {
-            document.getElementById('adminPanel').classList.add('hidden');
+        function closeModerationPanel() {
+            document.getElementById('moderationPanel').classList.add('hidden');
         }
 
-        function showAdminTab(tab) {
+        function showModerationTab(tab) {
             // Update active tab
-            const tabs = document.querySelectorAll('.admin-tab');
+            const tabs = document.querySelectorAll('.moderation-tab');
             tabs.forEach(t => t.classList.remove('active'));
-            document.querySelector(`.admin-tab[onclick="showAdminTab('${tab}')"]`).classList.add('active');
+            document.querySelector(`.moderation-tab[onclick="showModerationTab('${tab}')"]`).classList.add('active');
             
             // Update content
-            const content = document.getElementById('adminContent');
-            if (tab === 'moderation') {
+            const content = document.getElementById('moderationContent');
+            if (tab === 'applications') {
                 content.innerHTML = `
-                    <h3 style="font-weight: 600; color: white; margin-bottom: 16px;">Модерация товаров</h3>
-                    <div id="moderationList" style="space-y: 16px;">
+                    <h3 style="font-weight: 600; color: white; margin-bottom: 16px;">Заявки на модерацию</h3>
+                    <div id="applicationsList" style="space-y: 16px;">
                         <div style="text-align: center; padding: 32px 0; color: #8e8e93;">Загрузка заявок...</div>
                     </div>
                 `;
                 
                 // Load moderation applications
                 setTimeout(() => {
-                    const moderationList = document.getElementById('moderationList');
-                    if (!moderationList) return;
+                    const applicationsList = document.getElementById('applicationsList');
+                    if (!applicationsList) return;
                     
                     if (applications.length === 0) {
-                        moderationList.innerHTML = '<div style="text-align: center; padding: 32px 0; color: #8e8e93;">Нет заявок на модерацию</div>';
+                        applicationsList.innerHTML = '<div style="text-align: center; padding: 32px 0; color: #8e8e93;">Нет заявок на модерацию</div>';
                         return;
                     }
                     
-                    moderationList.innerHTML = '';
+                    applicationsList.innerHTML = '';
                     applications.forEach(app => {
                         const appCard = document.createElement('div');
                         appCard.className = 'ios-card';
@@ -1129,22 +1160,29 @@
                                 <h3 style="font-weight: 600; color: white;">${app.productName}</h3>
                                 <span style="background: #3a3a3c; color: #0a84ff; padding: 4px 8px; border-radius: 8px; font-size: 12px;">На модерации</span>
                             </div>
-                            <p style="color: #8e8e93; font-size: 14px; margin-bottom: 16px;">${app.description.substring(0, 60)}${app.description.length > 60 ? '...' : ''}</p>
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 16px;">
-                                <span style="color: #8e8e93; font-size: 14px;">${app.school}</span>
-                                <span style="color: #8e8e93; font-size: 14px;">${formatDate(app.submittedAt)}</span>
-                            </div>
+                            <p style="color: #8e8e93; font-size: 14px; margin-bottom: 8px;">${app.description}</p>
+                            <p style="color: #8e8e93; font-size: 14px; margin-bottom: 8px;">${app.school}</p>
+                            <p style="color: #8e8e93; font-size: 14px; margin-bottom: 16px;">${formatDate(app.submittedAt)}</p>
                             <div style="display: flex; gap: 8px;">
                                 <button onclick="rejectApplication(${app.id})" style="flex: 1; background: #ff3b30; color: white; border: none; border-radius: 8px; padding: 8px 0;">Отклонить</button>
                                 <button onclick="approveApplication(${app.id})" style="flex: 1; background: #34c759; color: white; border: none; border-radius: 8px; padding: 8px 0;">Одобрить</button>
                             </div>
                         `;
-                        moderationList.appendChild(appCard);
+                        applicationsList.appendChild(appCard);
                     });
                 }, 500);
             } else if (tab === 'users') {
                 content.innerHTML = `
-                    <h3 style="font-weight: 600; color: white; margin-bottom: 16px;">Пользователи</h3>
+                    <h3 style="font-weight: 600; color: white; margin-bottom: 16px;">Управление пользователями</h3>
+                    ${isAdmin ? `
+                    <div class="ios-card" style="margin-bottom: 16px;">
+                        <h4 style="font-weight: 500; color: white; margin-bottom: 8px;">Назначить модератора</h4>
+                        <div style="space-y: 16px;">
+                            <input type="text" id="moderatorUsername" placeholder="@username">
+                            <button onclick="addModerator()" class="ios-button btn-ripple">Назначить модератором</button>
+                        </div>
+                    </div>
+                    ` : ''}
                     <div id="usersList" style="space-y: 16px;">
                         <div style="text-align: center; padding: 32px 0; color: #8e8e93;">Загрузка пользователей...</div>
                     </div>
@@ -1169,47 +1207,24 @@
                         userCard.innerHTML = `
                             <div style="display: flex; justify-content: space-between; align-items-start; margin-bottom: 8px;">
                                 <h3 style="font-weight: 600; color: white;">${user.username}</h3>
-                                <span style="background: ${user.role === 'admin' ? '#0a84ff' : '#3a3a3c'}; color: white; padding: 4px 8px; border-radius: 8px; font-size: 12px;">${user.role === 'admin' ? 'Админ' : 'Пользователь'}</span>
+                                <span style="background: ${user.role === 'admin' ? '#0a84ff' : user.role === 'moderator' ? '#34c759' : '#3a3a3c'}; color: white; padding: 4px 8px; border-radius: 8px; font-size: 12px;">
+                                    ${user.role === 'admin' ? 'Админ' : user.role === 'moderator' ? 'Модератор' : 'Пользователь'}
+                                </span>
                             </div>
                             <div style="display: flex; justify-content: space-between; margin-bottom: 16px;">
                                 <span style="color: #8e8e93; font-size: 14px;">Статус: ${user.status}</span>
                                 <span style="color: #8e8e93; font-size: 14px;">ID: ${user.id}</span>
                             </div>
+                            ${isAdmin && user.role !== 'admin' ? `
                             <div style="display: flex; gap: 8px;">
-                                ${user.role !== 'admin' ? `<button onclick="makeModerator(${user.id})" style="flex: 1; background: #0a84ff; color: white; border: none; border-radius: 8px; padding: 8px 0;">Назначить модератором</button>` : ''}
-                                <button onclick="banUser(${user.id})" style="flex: 1; background: #ff3b30; color: white; border: none; border-radius: 8px; padding: 8px 0;">Забанить</button>
+                                ${user.role !== 'moderator' ? `<button onclick="makeModerator('${user.username}')" style="flex: 1; background: #0a84ff; color: white; border: none; border-radius: 8px; padding: 8px 0;">Назначить модератором</button>` : ''}
+                                <button onclick="banUser('${user.username}')" style="flex: 1; background: #ff3b30; color: white; border: none; border-radius: 8px; padding: 8px 0;">Забанить</button>
                             </div>
+                            ` : ''}
                         `;
                         usersList.appendChild(userCard);
                     });
                 }, 500);
-            } else if (tab === 'settings') {
-                content.innerHTML = `
-                    <h3 style="font-weight: 600; color: white; margin-bottom: 16px;">Настройки администратора</h3>
-                    <div class="ios-card">
-                        <h4 style="font-weight: 500; color: white; margin-bottom: 8px;">Общие настройки</h4>
-                        <div style="space-y: 16px;">
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <span style="color: #8e8e93;">Режим обслуживания</span>
-                                <label class="switch">
-                                    <input type="checkbox">
-                                    <span class="slider"></span>
-                                </label>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <span style="color: #8e8e93;">Уведомления</span>
-                                <label class="switch">
-                                    <input type="checkbox" checked>
-                                    <span class="slider"></span>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="ios-card">
-                        <h4 style="font-weight: 500; color: white; margin-bottom: 8px;">Безопасность</h4>
-                        <button style="width: 100%; color: #ff3b30; font-weight: 500; padding: 12px 0; background: none; text-align: center;">Сменить пароль</button>
-                    </div>
-                `;
             }
         }
 
@@ -1240,7 +1255,7 @@
                 alert('Товар одобрен и добавлен в магазин');
                 
                 // Refresh moderation list
-                showAdminTab('moderation');
+                showModerationTab('applications');
                 
                 // Refresh products for all users
                 if (document.getElementById('homeScreen').classList.contains('hidden') === false) {
@@ -1264,36 +1279,54 @@
                     alert('Товар отклонен');
                     
                     // Refresh moderation list
-                    showAdminTab('moderation');
+                    showModerationTab('applications');
                 }
             }
         }
 
-        function makeModerator(userId) {
-            if (confirm('Вы уверены, что хотите назначить этого пользователя модератором?')) {
-                alert('Пользователь назначен модератором');
+        function addModerator() {
+            if (isAdmin) {
+                const username = document.getElementById('moderatorUsername').value.trim();
+                if (username && username.startsWith('@')) {
+                    // In a real app, this would check if user exists and update database
+                    moderators.push(username);
+                    localStorage.setItem('moderators', JSON.stringify(moderators));
+                    
+                    alert(`Пользователь ${username} назначен модератором`);
+                    document.getElementById('moderatorUsername').value = '';
+                    showModerationTab('users');
+                } else {
+                    alert('Введите корректный username (начинается с @)');
+                }
+            } else {
+                alert('У вас нет прав для назначения модераторов');
             }
         }
 
-        function banUser(userId) {
-            if (confirm('Вы уверены, что хотите забанить этого пользователя? Это действие нельзя отменить.')) {
-                alert('Пользователь забанен');
+        function makeModerator(username) {
+            if (isAdmin) {
+                if (confirm(`Вы уверены, что хотите назначить пользователя ${username} модератором?`)) {
+                    moderators.push(username);
+                    localStorage.setItem('moderators', JSON.stringify(moderators));
+                    
+                    alert(`Пользователь ${username} назначен модератором`);
+                    showModerationTab('users');
+                }
+            } else {
+                alert('У вас нет прав для назначения модераторов');
+            }
+        }
+
+        function banUser(username) {
+            if (confirm(`Вы уверены, что хотите забанить пользователя ${username}? Это действие нельзя отменить.`)) {
+                // In a real app, this would update user status in database
+                alert(`Пользователь ${username} забанен`);
             }
         }
 
         function formatDate(dateString) {
             const date = new Date(dateString);
             return date.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
-        }
-
-        // Add admin button to navigation if user is admin
-        if (isAdmin) {
-            const navBar = document.querySelector('.tab-bar div');
-            const adminButton = document.createElement('div');
-            adminButton.className = 'nav-item';
-            adminButton.innerHTML = '<i>🛡️</i><span>Админ</span>';
-            adminButton.onclick = openAdminPanel;
-            navBar.appendChild(adminButton);
         }
     </script>
 </body>
